@@ -15,7 +15,7 @@ EXCLUDE="de.icongmbh.release*:::"
 echo -e 'digraph G { \n ' > $DOT_FILE_NAME
 echo -e '    graph [fontsize=8 fontname="Courier" compound=true];\n    node [shape=record fontsize=8 fontname="Courier"];\n    rankdir="LR";\n    page="8.3,11.7";\n ' >> $DOT_FILE_NAME
 
-mvn dependency:tree -Dincludes="$INCLUDE" -Dexcludes="$EXCLUDE" -DoutputType=dot | grep -E '\{|\;|\}' | cut -d']' -f2  | sed 's/digraph/subgraph/g' >> $DOT_FILE_NAME
+mvn -B -U dependency:tree -Dincludes="$INCLUDE" -Dexcludes="$EXCLUDE" -DoutputType=dot | grep -E '\{|\;|\}' | cut -d']' -f2  | sed 's/digraph/subgraph/g' >> $DOT_FILE_NAME
 
 echo '}' >> $DOT_FILE_NAME
 
