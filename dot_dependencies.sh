@@ -18,7 +18,7 @@ With no FILE the default '$input_files' will be used.
     -v          verbose mode. Can be used multiple times for increased
                 verbosity.
     
-Example: ${0##*/} \`find . -mindepth 2 -maxdepth 2 -iname pom.xml\`
+Example: ${0##*/} \`find . -mindepth 2 -iname pom.xml | grep -v "target"\`
 EOF
 }
 
@@ -63,17 +63,22 @@ fi
 # @see: https://maven.apache.org/plugins/maven-dependency-plugin/tree-mojo.html
 INCLUDE="de.icongmbh.*:::*-SNAPSHOT"
 EXCLUDE="de.icongmbh.release*:::"
+COUNTER=$((COUNTER + 1))
+
+temp_output_file=`tempfile`
+
+for pom_file in $input_files
+do
+  echo "working on [$COUNTER/${#}]: $pom_file"
+  mvn -B -U dependency:tree -Dincludes="$INCLUDE" -Dexcludes="$EXCLUDE" -DoutputType=dot -f "$pom_file" 2>&1 | grep -E '\{|\;|\}' | cut -d']' -f2  | sed 's/digraph/subgraph/g' >> $temp_output_file
+  [[ $? -gt 0 ]] && exit $?;
+  COUNTER=$((COUNTER + 1))
+done
 
 echo "create: $output_file"
 echo -e 'digraph G { \n ' > $output_file
 echo -e '    graph [fontsize=8 fontname="Courier" compound=true];\n    node [shape=record fontsize=8 fontname="Courier"];\n    rankdir="LR";\n    page="8.3,11.7";\n ' >> $output_file
-
-COUNTER=$((COUNTER + 1))
-for pom_file in $input_files
-do
-  echo "working on [$COUNTER/${#}]: $pom_file"
-  mvn -B -U dependency:tree -Dincludes="$INCLUDE" -Dexcludes="$EXCLUDE" -DoutputType=dot -f "$pom_file" | grep -E '\{|\;|\}' | cut -d']' -f2  | sed 's/digraph/subgraph/g' >> $output_file
-  COUNTER=$((COUNTER + 1))
-done
+# remove duplicate lines
+awk '$0 ~ "}" || !x[$0]++' $temp_output_file >> $output_file
 echo '}' >> $output_file
 
