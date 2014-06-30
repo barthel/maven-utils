@@ -21,9 +21,12 @@ output_file='dependencies.dot'
 includes='de.icongmbh.*:::'
 excludes=''
 
+# merge dependencies / remove duplicate lines from DOT file
 merge_dependencies=0
 
 # page size; include in DOT file as page="..."; default DIN A 4
+dot_file_header="digraph G { \n     graph [fontsize=8 fontname=\"Courier\" compound=true];\n    node [shape=record fontsize=8 fontname=\"Courier\"];\n    rankdir=\"LR\";"
+dot_file_footer="}"
 page_size='8.3,11.7'
 
 exec_mvn='mvn -B dependency:tree -DoutputType=dot -DappendOutput=true'
@@ -83,8 +86,9 @@ EOF
 ### CMD ARGS
 # process command line arguments
 # @see: http://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash#192266
+# @see: http://mywiki.wooledge.org/BashFAQ/035#getopts
 OPTIND=1         # Reset in case getopts has been used previously in the shell.
-while getopts "e:h?i:mo:p:qsuv" opt;
+while getopts "h?mqsuve:i:o:p:" opt;
 do
     case "$opt" in
     e)  exec_mvn="$exec_mvn -Dexcludes=\"$OPTARG\""
@@ -117,10 +121,9 @@ shift $((OPTIND-1))
 [ "$1" = "--" ] && shift;
 
 # use left over arguments as list of POM files
-if [ "${#}" -gt "1" ];
-then
-  input_files=("$@")
-fi
+[[ "${#}" -gt "0" ]] && input_files=("$@")
+
+[[ ! -n "$includes" ]] && exec_mvn="$exec_mvn -Dincludes=\"$includes\""
 
 [[ $verbose -gt 0 ]] && echo -e "input_files: $input_files\noutput_file: $output_file\nincludes: $includes\nexcludes: $excludes\nverbose: $verbose\npage_size: $page_size"
 # add Maven verbose option if 'd' command line arg iwas more than once
@@ -139,7 +142,7 @@ do
   # -DoutputFile and -Doutput seems not work in this special behaviour :-(
   #    mvn_cmd="$exec_mvn -DoutputFile=$temp_output_file -Doutput=$temp_output_file -Dincludes=\"$include\" -f \"$pom_file\" "
   # use the console output instead
-  mvn_cmd="$exec_mvn -Dincludes=\"$includes\" -f\"$pom_file\" 2>&1 | $exec_grep_filter_console_message | $exec_cut_console_message"
+  mvn_cmd="$exec_mvn -f\"$pom_file\" 2>&1 | $exec_grep_filter_console_message | $exec_cut_console_message"
   [[ $verbose -gt 0 ]] && echo "$mvn_cmd"
   eval $mvn_cmd >> $temp_output_file
   [[ $? -gt 0 ]] && exit $?; # check the return value
@@ -154,8 +157,8 @@ fi
 ### DEPENDENCIES
 
 [[ $quiet -lt 1 ]] && echo "create: $output_file"
-echo -e 'digraph G { \n ' > $output_file
-echo -e "    graph [fontsize=8 fontname=\"Courier\" compound=true];\n    node [shape=record fontsize=8 fontname=\"Courier\"];\n    rankdir=\"LR\";\n    page=\"$page_size\";\n " >> $output_file
+echo -e "$dot_file_header" > $output_file
+[[ -n "$page_size" ]] && echo -e "    page=\"$page_size\";\n " >> $output_file
 cmd="$exec_sed_rename_graph $temp_output_file | $exec_sed_normalize_artifacts"
 if [ $merge_dependencies -lt 1 ]
 then
@@ -171,7 +174,7 @@ else
   eval $cmd >> $output_file
 ### MERGE and CLEAN UP
 fi
-echo '}' >> $output_file
+echo $dot_file_footer >> $output_file
 
 # clean up temp. work file if verbose level is lower than '2'
 # @see: http://www.linuxjournal.com/content/use-bash-trap-statement-cleanup-temporary-files
