@@ -13,6 +13,7 @@
 
 #set -x
 verbose=0
+quiet=0
 
 input_files=('pom.xml')
 output_file='dependencies.dot'
@@ -50,7 +51,8 @@ exec_cut_console_message='cut -d"]" -f2'
 
 show_help() {
 cat << EOF
-Usage: ${0##*/} [-hmsuv [-e EXCLUDES] [-i INCLUDES] [-o OUTFILE] [-p PAGE_SIZE] [FILE]...
+
+Usage: ${0##*/} [-hmqsuv [-e EXCLUDES] [-i INCLUDES] [-o OUTFILE] [-p PAGE_SIZE] [FILE]...
 Create a DOT file based on Maven dependencies (as a 'subgraph') provided by FILE.
 
 With no FILE the default '$input_files' will be used.
@@ -68,6 +70,7 @@ With no FILE the default '$input_files' will be used.
     -o OUTFILE   Write the result to OUTFILE instead of '$output_file' (default).
     -p PAGE_SIZE The page size in inch.
                  See: http://www.graphviz.org/content/attrs#dpage for more information
+    -q           quiet mode.
     -s           ONLY SNAPSHOT versions mode
     -u           force update repositories mode.
                  Forces a check for updated releases and snapshots on remote Maven repositories
@@ -81,7 +84,7 @@ EOF
 # process command line arguments
 # @see: http://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash#192266
 OPTIND=1         # Reset in case getopts has been used previously in the shell.
-while getopts "eh?imopsuv" opt;
+while getopts "e:h?i:mo:p:qsuv" opt;
 do
     case "$opt" in
     e)  exec_mvn="$exec_mvn -Dexcludes=\"$OPTARG\""
@@ -97,6 +100,8 @@ do
     o)  output_file=$OPTARG
         ;;
     p)  page_size="$OPTARG"
+        ;;
+    q)  quiet=1
         ;;
     s)  include="$include*-SNAPSHOT"
         ;;
@@ -117,6 +122,7 @@ then
   input_files=("$@")
 fi
 
+[[ $verbose -gt 0 ]] && echo -e "input_files: $input_files\noutput_file: $output_file\nincludes: $includes\nexcludes: $excludes\nverbose: $verbose\npage_size: $page_size"
 # add Maven verbose option if 'd' command line arg iwas more than once
 [[ $verbose -gt 1 ]] && exec_mvn="$exec_mvn -X"
 ### CMD ARGS
@@ -129,7 +135,7 @@ counter=1
 # iterate over the POM file list and exec mvn
 for pom_file in "${input_files[@]}"
 do
-  echo "working on [$counter/${#input_files[@]}]: $pom_file"
+  [[ $quiet -lt 1 ]] && echo "working on [$counter/${#input_files[@]}]: $pom_file"
   # -DoutputFile and -Doutput seems not work in this special behaviour :-(
   #    mvn_cmd="$exec_mvn -DoutputFile=$temp_output_file -Doutput=$temp_output_file -Dincludes=\"$include\" -f \"$pom_file\" "
   # use the console output instead
@@ -147,7 +153,7 @@ then
 fi
 ### DEPENDENCIES
 
-echo "create: $output_file"
+[[ $quiet -lt 1 ]] && echo "create: $output_file"
 echo -e 'digraph G { \n ' > $output_file
 echo -e "    graph [fontsize=8 fontname=\"Courier\" compound=true];\n    node [shape=record fontsize=8 fontname=\"Courier\"];\n    rankdir=\"LR\";\n    page=\"$page_size\";\n " >> $output_file
 cmd="$exec_sed_rename_graph $temp_output_file | $exec_sed_normalize_artifacts"
@@ -158,7 +164,7 @@ then
   eval $cmd >> $output_file
 else
 ### MERGE and CLEAN UP
-  echo 'merge and clean up dependencies'
+  [[ $quiet -lt 1 ]] && echo 'merge and clean up dependencies'
   # cleanup and normalize DOT content
   cmd="$cmd | $exec_awk_duplicate_lines | $exec_sed_duplicate_braces_line"
   [[ $verbose -gt 0 ]] && echo "$cmd"
