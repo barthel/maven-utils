@@ -25,7 +25,7 @@ excludes=''
 merge_dependencies=0
 
 # page size; include in DOT file as page="..."; default DIN A 4
-dot_file_header="digraph G { \n     graph [fontsize=8 fontname=\"Courier\" compound=true];\n    node [shape=record fontsize=8 fontname=\"Courier\"];\n    rankdir=\"LR\";"
+dot_file_header="digraph G {\n\tgraph [compound=true,\n\t\tfontname=Courier,\n\t\tfontsize=8,\n\t\trankdir=LR\n\t];\n\tnode [fontname=Courier,\n\t\tfontsize=8,\n\t\tshape=record\n\t];"
 dot_file_footer="}"
 page_size='8.3,11.7'
 
@@ -34,9 +34,10 @@ exec_mvn='mvn -B dependency:tree -DoutputType=dot -DappendOutput=true'
 sed_word_pattern='a-zA-Z\_0-9.-' # \w\d.-
 # "groupId:artifactId:type[:classifier]:version[:scope]" -> "artifactId:type:version"
 # #1: (groupId:)
-# #2: (artifactId:type[:classifier]:version)
+# #2: (artifactId:type)
+# #3: ([:classifier]:version)
 # #3: (:scope)"
-exec_sed_normalize_artifacts="sed -e 's/\"\([$sed_word_pattern]*:\)\([$sed_word_pattern]*:[$sed_word_pattern]*:[$sed_word_pattern]*\)\(\:[$sed_word_pattern]*\)*/\"\2/g'"
+exec_sed_normalize_artifacts="sed -e 's/\"\([$sed_word_pattern]*:\)\([$sed_word_pattern]*:[$sed_word_pattern]*\)\(:[$sed_word_pattern]*\)\(\:[$sed_word_pattern]*\)*/\"\2/g'"
 # rename 'digraph' into 'subgraph'
 exec_sed_rename_graph="sed 's/digraph/subgraph/g'"
 
@@ -107,7 +108,7 @@ do
         ;;
     q)  quiet=1
         ;;
-    s)  include="$include*-SNAPSHOT"
+    s)  includes="$includes*-SNAPSHOT"
         ;;
     u)  exec_mvn="$mvn_exec -U"
         ;;
@@ -123,7 +124,7 @@ shift $((OPTIND-1))
 # use left over arguments as list of POM files
 [[ "${#}" -gt "0" ]] && input_files=("$@")
 
-[[ ! -n "$includes" ]] && exec_mvn="$exec_mvn -Dincludes=\"$includes\""
+[[ ! -z "$includes" ]] && exec_mvn="$exec_mvn -Dincludes=\"$includes\""
 
 [[ $verbose -gt 0 ]] && echo -e "input_files: $input_files\noutput_file: $output_file\nincludes: $includes\nexcludes: $excludes\nverbose: $verbose\npage_size: $page_size"
 # add Maven verbose option if 'd' command line arg iwas more than once
@@ -132,6 +133,7 @@ shift $((OPTIND-1))
 
 ### DEPENDENCIES
 # temp. working file for collect the mvn output
+temp_dependencies_output_file=`tempfile -p"${0##*/}"`
 temp_output_file=`tempfile -p"${0##*/}"`
 
 counter=1
@@ -144,39 +146,40 @@ do
   # use the console output instead
   mvn_cmd="$exec_mvn -f\"$pom_file\" 2>&1 | $exec_grep_filter_console_message | $exec_cut_console_message"
   [[ $verbose -gt 0 ]] && echo "$mvn_cmd"
-  eval $mvn_cmd >> $temp_output_file
+  eval $mvn_cmd >> $temp_dependencies_output_file
   [[ $? -gt 0 ]] && exit $?; # check the return value
   counter=$((counter + 1))
 done
 
-if [ ! -s "$temp_output_file" ]
+if [ ! -s "$temp_dependencies_output_file" ]
 then
-  echo "the generated dependencies file ($temp_output_file) is empty"
+  echo "the generated dependencies file ($temp_dependencies_output_file) is empty"
   exit 1
 fi
 ### DEPENDENCIES
 
 [[ $quiet -lt 1 ]] && echo "create: $output_file"
-echo -e "$dot_file_header" > $output_file
-[[ -n "$page_size" ]] && echo -e "    page=\"$page_size\";\n " >> $output_file
-cmd="$exec_sed_rename_graph $temp_output_file | $exec_sed_normalize_artifacts"
+echo -e "$dot_file_header" > $temp_output_file
+[[ -n "$page_size" ]] && echo -e "\tpage=\"$page_size\";\n" >> $temp_output_file
+cmd="$exec_sed_rename_graph $temp_dependencies_output_file | $exec_sed_normalize_artifacts"
 if [ $merge_dependencies -lt 1 ]
 then
   cmd="$cmd"
   [[ $verbose -gt 0 ]] && echo "$cmd"
-  eval $cmd >> $output_file
+  eval $cmd >> $temp_output_file
 else
 ### MERGE and CLEAN UP
   [[ $quiet -lt 1 ]] && echo 'merge and clean up dependencies'
   # cleanup and normalize DOT content
   cmd="$cmd | $exec_awk_duplicate_lines | $exec_sed_duplicate_braces_line"
   [[ $verbose -gt 0 ]] && echo "$cmd"
-  eval $cmd >> $output_file
+  eval $cmd >> $temp_output_file
 ### MERGE and CLEAN UP
 fi
-echo $dot_file_footer >> $output_file
+echo $dot_file_footer >> $temp_output_file
+prune $temp_output_file > $output_file
 
 # clean up temp. work file if verbose level is lower than '2'
 # @see: http://www.linuxjournal.com/content/use-bash-trap-statement-cleanup-temporary-files
-[[ $verbose -lt 2 ]] && trap "rm -f $temp_output_file" EXIT
+[[ $verbose -lt 2 ]] && trap "rm -f $temp_dependencies_output_file $temp_output_file" EXIT
 
