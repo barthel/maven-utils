@@ -23,6 +23,8 @@ excludes=''
 
 # merge dependencies / remove duplicate lines from DOT file
 merge_dependencies=0
+# use ONLY SNAPSHOT versions
+use_only_snapshot=0
 
 # page size; include in DOT file as page="..."; default DIN A 4
 dot_file_header="digraph G {\n\tgraph [compound=true,\n\t\tfontname=Courier,\n\t\tfontsize=8,\n\t\trankdir=LR\n\t];\n\tnode [fontname=Courier,\n\t\tfontsize=8,\n\t\tshape=record\n\t];"
@@ -108,7 +110,7 @@ do
         ;;
     q)  quiet=1
         ;;
-    s)  includes="$includes*-SNAPSHOT"
+    s)  use_only_snapshot=1
         ;;
     u)  exec_mvn="$mvn_exec -U"
         ;;
@@ -123,6 +125,8 @@ shift $((OPTIND-1))
 
 # use left over arguments as list of POM files
 [[ "${#}" -gt "0" ]] && input_files=("$@")
+
+[[ $use_only_snapshot -gt 0 ]] && includes="$includes*-SNAPSHOT"
 
 [[ ! -z "$includes" ]] && exec_mvn="$exec_mvn -Dincludes=\"$includes\""
 
