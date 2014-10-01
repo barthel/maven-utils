@@ -7,7 +7,7 @@
 # 1) Complete overview
 # Use all POM files based on directory structure (git repositories) where the name of the directory (git repository) starts
 # with 'do' or 'ic':
-#   dot_dependencies.sh -m -s -i"*:::" `find . -mindepth 2 -iname pom.xml | grep -v "target" | grep -R "^\.\/[id][co]*"`
+#   dot_dependencies.sh -m -a `find . -iname "*pom.xml" | grep -v "target" | grep -R "^\.\/[id][co]*"`
 #
 # The DOT-output will be modified (replace 'digraph' with 'subgraph') and surround by 'digraph G' and formatting information.
 #
@@ -45,19 +45,24 @@ merge_dependencies=0
 use_only_snapshot=0
 
 # page size; include in DOT file as page="..."; default DIN A 4
-dot_file_header="/* ${timestamp} ${0} ${@} */\ndigraph G {\n\tlabel=\"${timestamp} ${0} ${@}\";\n\tgraph [\n\t\tcompound=true,\n\t\tfontname=Courier,\n\t\tfontsize=8,\n\t\trankdir=LR\n\t];\n\tnode [\n\t\tfontname=Courier,\n\t\tfontsize=8,\n\t\tcolor=Black\n\t\tshape=rect\n\t];"
+dot_file_header="/* ${timestamp} ${0} ${@} */\ndigraph G {\n\ttaillabel=\"${timestamp} ${0} ${@}\";\n\tlabelfontsize=6;\n\tgraph [\n\t\tcompound=true,\n\t\tfontname=Courier,\n\t\tfontsize=8,\n\t\trankdir=LR\n\t];\n\tnode [\n\t\tfontname=Courier,\n\t\tfontsize=8,\n\t\tcolor=Black\n\t\tshape=rect\n\t];"
 dot_file_footer="\n}"
 page_size='8.3,11.7'
 
 exec_mvn="mvn -B dependency:tree -DoutputType=dot -DappendOutput=true -Denforcer.skip=true"
 
 sed_word_pattern='a-zA-Z\_0-9.-' # \w\d.-
-# "groupId:artifactId:type[:classifier]:version[:scope]" -> "artifactId:type:version"
+# "groupId:artifactId:type[:classifier]:version[:scope]" -> "artifactId:type[:classifier]:version"
 # #1: (groupId:)
 # #2: (artifactId:type)
 # #3: ([:classifier]:version)
 # #3: (:scope)"
-exec_sed_normalize_artifacts="sed -e 's/\"\([$sed_word_pattern]*:\)\([$sed_word_pattern]*:[$sed_word_pattern]*\)\(:[$sed_word_pattern]*\)\(\:[$sed_word_pattern]*\)*/\"\2\3/g'"
+sed_normalize_artifactId_version="sed -e 's/\"\([$sed_word_pattern]*:\)\([$sed_word_pattern]*:[$sed_word_pattern]*\)\(:[$sed_word_pattern]*\)\(\:[$sed_word_pattern]*\)*/\"\2\3/g'"
+# #1: (artifactId)
+sed_normalize_artifactId="sed -e 's/\"\([$sed_word_pattern]*:\)\([$sed_word_pattern]*\)\(:[$sed_word_pattern]*\)\(:[$sed_word_pattern]*\)\(\:[$sed_word_pattern]*\)*/\"\2/g'"
+
+exec_sed_normalize_artifacts=$sed_normalize_artifactId_version
+
 # rename 'digraph' into 'subgraph'
 exec_sed_rename_graph="sed 's/digraph/subgraph/g'"
 
@@ -76,11 +81,12 @@ exec_cut_console_message='cut -d"]" -f2'
 show_help() {
 cat << EOF
 
-Usage: ${0##*/} [-hmqsuv [-e EXCLUDES] [-i INCLUDES] [-o OUTFILE] [-p PAGE_SIZE] [FILE]...
+Usage: ${0##*/} [-ahmqsuv [-e EXCLUDES] [-i INCLUDES] [-o OUTFILE] [-p PAGE_SIZE] [FILE]...
 Create a DOT file based on Maven dependencies (as a 'subgraph') provided by FILE.
 
 With no FILE the default '$input_files' will be used.
     
+    -a           only artifactIds without version information
     -e EXCLUDES  exclude dependencies mode.
                  A comma-separated list of artifacts to filter from the serialized dependency tree, or null (default) not
                  to filter any artifacts from the dependency tree. An empty pattern segment is treated as an implicit wildcard.
@@ -124,9 +130,11 @@ check_required_helper() {
 # @see: http://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash#192266
 # @see: http://mywiki.wooledge.org/BashFAQ/035#getopts
 OPTIND=1         # Reset in case getopts has been used previously in the shell.
-while getopts "h?mqsuve:i:o:p:" opt;
+while getopts "ah?mqsuve:i:o:p:" opt;
 do
     case "$opt" in
+    a)  exec_sed_normalize_artifacts=$sed_normalize_artifactId
+        ;;
     e)  exec_mvn="$exec_mvn -Dexcludes=\"$OPTARG\""
         ;;
     h|\?)
@@ -194,8 +202,11 @@ do
   [[ $verbose -gt 0 ]] && echo "$mvn_cmd"
   # send job to background to get the PID
   eval $mvn_cmd >> $temp_dependencies_output_file &
-  # set priviliged I/O access
-  ionice -c 2 -n 2 -p $$
+  if hash ionice 2>/dev/null
+  then
+    # set priviliged I/O access
+    ionice -c 2 -n 2 -p $$
+  fi
   # get job to foreground
   fg %1 2>&1 >> /dev/null
   [[ $? -gt 0 ]] && exit $?; # check the return value
