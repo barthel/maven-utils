@@ -7,7 +7,7 @@
 # 1) Complete overview
 # Use all POM files based on directory structure (git repositories) where the name of the directory (git repository) starts
 # with 'do' or 'ic':
-#   dot_dependencies.sh -m -a `find . -iname "*pom.xml" | grep -v "target" | grep -R "^\.\/[id][co]*"`
+#   dot_dependencies.sh -m -a `find . -iname pom.xml -exec grep -H -v "<modules>" {} \; | grep -v target | cut -d':' -f1 | sort | uniq | grep -E "^\.\/[di][oc]" | grep -v "dope.customer"`
 #
 # The DOT-output will be modified (replace 'digraph' with 'subgraph') and surround by 'digraph G' and formatting information.
 #
@@ -106,7 +106,7 @@ With no FILE the default '$input_files' will be used.
                  Forces a check for updated releases and snapshots on remote Maven repositories
     -v           verbose mode. Can be used multiple times for increased verbosity.
     
-Example: ${0##*/} \`find . -mindepth 2 -iname pom.xml | grep -v "target"\`
+Example: ${0##*/} \`find . -iname pom.xml -exec grep -H -v "<modules>" {} \; | grep -v target | cut -d':' -f1 | sort | uniq | grep -E "^\.\/[di][oc]" | grep -v "dope.customer"\`
 EOF
 }
 
