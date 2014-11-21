@@ -21,6 +21,7 @@ do
 
   echo "working on: $i"
 
+# may use: grep --color=never -oPm1 "(?<=<${tagName}>)[^<]+"
   GROUP_ID=`mvn help:evaluate -f $i -Dexpression=project.groupId | grep -Ev '(^\[|Download\w+:)'`
   ARTIFACT_ID=`mvn help:evaluate -f $i -Dexpression=project.artifactId | grep -Ev '(^\[|Download\w+:)'`
   VERSION=`mvn help:evaluate -f $i -Dexpression=project.version | grep -Ev '(^\[|Download\w+:)'`
