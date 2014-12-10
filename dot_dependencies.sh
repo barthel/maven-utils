@@ -7,10 +7,8 @@
 # Example(s):
 #
 # 1) Complete overview
-# Use all POM files based on directory structure (git repositories) where the name of the directory (git repository) starts
-# with 'do' or 'ic':
-#
-# 2) Overview based on reactor POM
+# Use all POM files (but ignore reactor/module POM files) based on directory structure (git repositories) where the name of the directory (git repository) starts
+# with 'do' or 'ic' and ignore 'dope.customer':
 #   dot_dependencies.sh -m -a `find . -iname pom.xml -exec grep -H -v "<modules>" {} \; | grep -v target | cut -d':' -f1 | sort | uniq | grep -E "^\.\/[di][oc]" | grep -v "dope.customer"`
 #
 # Use the DOT file like:
@@ -22,15 +20,15 @@
 #   dot -Tps2 dependencies_nopage.dot | ps2pdf -dSAFER -dOptimize=true - dependencies_nopage.dot.pdf
 # @see: https://maven.apache.org/plugins/maven-dependency-plugin/tree-mojo.html
 
-# set -x
 # activate job monitoring
 # @see: http://www.linuxforums.org/forum/programming-scripting/139939-fg-no-job-control-script.html
 set -m
+# set -x
 
 verbose=0
 quiet=0
 
-required_helper=('date' 'mvn' 'tempfile' 'cat' 'grep' 'cut' 'sed' 'awk' 'prune')
+required_helper=('hash' 'date' 'mvn' 'tempfile' 'cat' 'grep' 'cut' 'sed' 'awk' 'prune')
 
 timestamp=`date --rfc-3339=seconds`
 
@@ -81,14 +79,14 @@ exec_cut_console_message='cut -d"]" -f2'
 
 show_help() {
 cat << EOF
-
 Usage: ${0##*/} [-ah?mqsuv] [-e EXCLUDES] [-i INCLUDES] [-o OUTFILE] [-p PAGE_SIZE] [FILE]...
+
 Create a DOT file based on Maven dependencies (as a 'subgraph') provided by FILE.
 
 With no FILE the default '$input_files' will be used.
     
-    -h|-?        display this help and exit
-    -a           only artifactIds without version information
+    -h|-?        display this help and exit.
+    -a           only artifactIds without version information.
     -e EXCLUDES  exclude dependencies mode.
                  A comma-separated list of artifacts to filter from the serialized dependency tree, or null (default) not
                  to filter any artifacts from the dependency tree. An empty pattern segment is treated as an implicit wildcard.
@@ -98,13 +96,13 @@ With no FILE the default '$input_files' will be used.
                  '$includes' (default)
                  See: https://maven.apache.org/plugins/maven-dependency-plugin/tree-mojo.html#includes for more information
     -m           merge dependencies mode.
-    -o OUTFILE   Write the result to OUTFILE instead of '$output_file' (default).
+    -o OUTFILE   Write the result to OUTFILE ('$output_file').
     -p PAGE_SIZE The page size in inch.
                  See: http://www.graphviz.org/content/attrs#dpage for more information
     -q           quiet mode.
-    -s           ONLY SNAPSHOT versions mode
+    -s           ONLY SNAPSHOT versions mode.
     -u           force update repositories mode.
-                 Forces a check for updated releases and snapshots on remote Maven repositories
+                 Forces a check for updated releases and snapshots on remote Maven repositories.
     -v           verbose mode. Can be used multiple times for increased verbosity.
     
 Example: ${0##*/} \`find . -iname pom.xml -exec grep -H -v "<modules>" {} \; | grep -v target | cut -d':' -f1 | sort | uniq | grep -E "^\.\/[di][oc]" | grep -v "dope.customer"\`

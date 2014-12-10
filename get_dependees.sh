@@ -6,10 +6,10 @@
 # where the desired artifact is defined as a dependency.
 #
 
-# set -x
 # activate job monitoring
 # @see: http://www.linuxforums.org/forum/programming-scripting/139939-fg-no-job-control-script.html
 set -m
+# set -x
 
 required_helper=('mvn' 'tempfile' 'xargs' 'grep' 'sed' 'sort' 'wget')
 input_file='pom.xml'
@@ -22,19 +22,20 @@ wget_cmd="wget -nv -q --no-proxy -O ${temp_output_file} "
 
 show_help() {
 cat << EOF
-
 Usage: ${0##*/} [-h?p] [-f POM_FILE] [-a ARTIFACTID -g GROUPID -v VERSION]
+
 Get dependees for Maven artifact provided by POM_FILE or
 artifact coordinates (GROUPID, ARTIFACTID and VERSION).
 
 This script will search all artifacts in remote Maven repository manager,
 where the desired artifact is defined as a dependency.
 
-Without POM_FILE and maven artifact coordinates the default '$input_file' will be used.
+Without POM_FILE and maven artifact coordinates the default '$input_file' of current
+will be used.
     
-    -h|-?         display this help and exit
+    -h|-?         display this help and exit.
     -a ARTIFACTID the Maven artifact id.
-    -f POM_FILE   the Maven project file (pom.xml).
+    -f POM_FILE   the Maven project file ('${input_file}').
     -g GROUPID    the Maven artifact group id.
     -p            disable use of proxy server.
     -v VERSION    the Maven artifact version.
