@@ -2,16 +2,18 @@
 
 # Use the passed list of lokal pom.xml (maven) files and create dependency-tree in dot format.
 #
+# The DOT-output will be modified (replace 'digraph' with 'subgraph') and surround by 'digraph G' and formatting information.
+#
 # Example(s):
 #
 # 1) Complete overview
 # Use all POM files based on directory structure (git repositories) where the name of the directory (git repository) starts
 # with 'do' or 'ic':
+#
+# 2) Overview based on reactor POM
 #   dot_dependencies.sh -m -a `find . -iname pom.xml -exec grep -H -v "<modules>" {} \; | grep -v target | cut -d':' -f1 | sort | uniq | grep -E "^\.\/[di][oc]" | grep -v "dope.customer"`
 #
-# The DOT-output will be modified (replace 'digraph' with 'subgraph') and surround by 'digraph G' and formatting information.
-#
-# use the DOT file like:
+# Use the DOT file like:
 #   xdot --filter=dot $output_file
 # or use for print on several A4 paper:
 #   dot -Tps2 $output_file | ps2pdf -dSAFER -dOptimize=true -sPAPERSIZE=a4 - $output_file.pdf
@@ -20,8 +22,7 @@
 #   dot -Tps2 dependencies_nopage.dot | ps2pdf -dSAFER -dOptimize=true - dependencies_nopage.dot.pdf
 # @see: https://maven.apache.org/plugins/maven-dependency-plugin/tree-mojo.html
 
-#set -x
-
+# set -x
 # activate job monitoring
 # @see: http://www.linuxforums.org/forum/programming-scripting/139939-fg-no-job-control-script.html
 set -m
@@ -81,16 +82,16 @@ exec_cut_console_message='cut -d"]" -f2'
 show_help() {
 cat << EOF
 
-Usage: ${0##*/} [-ahmqsuv [-e EXCLUDES] [-i INCLUDES] [-o OUTFILE] [-p PAGE_SIZE] [FILE]...
+Usage: ${0##*/} [-ah?mqsuv] [-e EXCLUDES] [-i INCLUDES] [-o OUTFILE] [-p PAGE_SIZE] [FILE]...
 Create a DOT file based on Maven dependencies (as a 'subgraph') provided by FILE.
 
 With no FILE the default '$input_files' will be used.
     
+    -h|-?        display this help and exit
     -a           only artifactIds without version information
     -e EXCLUDES  exclude dependencies mode.
                  A comma-separated list of artifacts to filter from the serialized dependency tree, or null (default) not
                  to filter any artifacts from the dependency tree. An empty pattern segment is treated as an implicit wildcard.
-    -h           display this help and exit
     -i INCLUDES  include dependencies mode.
                  A comma-separated list of artifacts to filter the serialized dependency tree by, or null not
                  to filter the dependency tree. An empty pattern segment is treated as an implicit wildcard.

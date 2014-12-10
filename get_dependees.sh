@@ -1,13 +1,14 @@
 #!/bin/bash
 
-# Get dependees for maven artifact.
+# Get dependees for Maven artifact.
 #
-# The script determines you all those artifacts, in which the desired artifact is included as a dependency.
+# This script will search all artifacts in remote Maven repository manager,
+# where the desired artifact is defined as a dependency.
 #
-# activate job monitoring
-# @see: http://www.linuxforums.org/forum/programming-scripting/139939-fg-no-job-control-script.html
 
 # set -x
+# activate job monitoring
+# @see: http://www.linuxforums.org/forum/programming-scripting/139939-fg-no-job-control-script.html
 set -m
 
 required_helper=('mvn' 'tempfile' 'xargs' 'grep' 'sed' 'sort' 'wget')
@@ -22,19 +23,21 @@ wget_cmd="wget -nv -q --no-proxy -O ${temp_output_file} "
 show_help() {
 cat << EOF
 
-Usage: ${0##*/} [-f POM_FILE] [-a ARTIFACTID -g GROUPID -v VERSION]
-Get dependees for maven project provided by POM_FILE or
+Usage: ${0##*/} [-h?p] [-f POM_FILE] [-a ARTIFACTID -g GROUPID -v VERSION]
+Get dependees for Maven artifact provided by POM_FILE or
 artifact coordinates (GROUPID, ARTIFACTID and VERSION).
 
-The script determines you all those artifacts, in which the desired artifact is included as a dependency.
+This script will search all artifacts in remote Maven repository manager,
+where the desired artifact is defined as a dependency.
 
 Without POM_FILE and maven artifact coordinates the default '$input_file' will be used.
     
-    -a ARTIFACTID   the artifact id.
-    -f POM_FILE     the pom.xml file.
-    -g GROUPID      the artifact groupId.
-    -p              disable use of proxy server.
-    -v VERSION      the artifact version.
+    -h|-?         display this help and exit
+    -a ARTIFACTID the Maven artifact id.
+    -f POM_FILE   the Maven project file (pom.xml).
+    -g GROUPID    the Maven artifact group id.
+    -p            disable use of proxy server.
+    -v VERSION    the Maven artifact version.
     
 Example:  ${0##*/}
           ${0##*/} -f pom.xml
@@ -89,9 +92,9 @@ shift $((OPTIND-1))
 
 if [[ -z "${groupId}" && -z "${artifactId}" && -z "${version}" && -f "${input_file}" ]]
   then
-    groupId=`mvn help:evaluate -f ${input_file} -Dexpression=project.groupId | grep -Ev '(^\[|Download\w+:)'`
-    artifactId=`mvn help:evaluate -f ${input_file} -Dexpression=project.artifactId | grep -Ev '(^\[|Download\w+:)'`
-    version=`mvn help:evaluate -f ${input_file} -Dexpression=project.version | grep -Ev '(^\[|Download\w+:)'`
+    groupId=`mvn help:evaluate -f ${input_file} -Dexpression=project.groupId | grep --color=never -Ev '(^\[|Download\w+:)'`
+    artifactId=`mvn help:evaluate -f ${input_file} -Dexpression=project.artifactId | grep --color=never -Ev '(^\[|Download\w+:)'`
+    version=`mvn help:evaluate -f ${input_file} -Dexpression=project.version | grep --color=never -Ev '(^\[|Download\w+:)'`
 fi
 
 [ -z "${groupId}" ] && echo "The groupId is required." && exit 1 || true
@@ -102,7 +105,7 @@ echo -n -e "Get dependees for artifact: ${groupId}/${artifactId} ${version}\n\n"
 
 ${wget_cmd} ${archiva_url}/${groupId}/${artifactId}/${version}/usedby
 
-grep -A 4 -B 2 ${eyecatcher_in_html} ${temp_output_file} | grep -v ${eyecatcher_in_html} | xargs | \
+grep  --color=never -A 4 -B 2 ${eyecatcher_in_html} ${temp_output_file} | grep --color=never -v ${eyecatcher_in_html} | xargs | \
   sed -e 's/\-\-/\n/g' | sed -r 's#^.*<a href=[^"]+>([^<]+)</a>.*<a href=[^"]+>([^<]+)</a>.*$#\1\t\2#' | sed 's/\-.*/\-SNAPSHOT/g' | sort -u
 trap "rm -f ${temp_output_file}" EXIT
 
