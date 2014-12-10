@@ -1,6 +1,8 @@
 #!/bin/bash
 
-# Get dependees of the passed pom.xml (maven) file.
+# Get dependees for maven artifact.
+#
+# The script determines you all those artifacts, in which the desired artifact is included as a dependency.
 #
 # activate job monitoring
 # @see: http://www.linuxforums.org/forum/programming-scripting/139939-fg-no-job-control-script.html
@@ -10,23 +12,32 @@ set -m
 
 required_helper=('mvn' 'tempfile' 'xargs' 'grep' 'sed' 'sort' 'wget')
 input_file='pom.xml'
+# temp. working file for wget output
+temp_output_file=`tempfile -p"${0##*/}"`
 
 archiva_url="http://archiva.icongmbh.de/archiva/browse"
+eyecatcher_in_html="<strong>Version(s):</strong>"
+wget_cmd="wget -nv -q --no-proxy -O ${temp_output_file} "
 
 show_help() {
 cat << EOF
 
 Usage: ${0##*/} [-f POM_FILE] [-a ARTIFACTID -g GROUPID -v VERSION]
-Get dependees of pom.xml (maven) provided by POM_FILE.
+Get dependees for maven project provided by POM_FILE or
+artifact coordinates (GROUPID, ARTIFACTID and VERSION).
 
-With no POM_FILE the default '$input_file' will be used.
+The script determines you all those artifacts, in which the desired artifact is included as a dependency.
+
+Without POM_FILE and maven artifact coordinates the default '$input_file' will be used.
     
     -a ARTIFACTID   the artifact id.
     -f POM_FILE     the pom.xml file.
     -g GROUPID      the artifact groupId.
+    -p              disable use of proxy server.
     -v VERSION      the artifact version.
     
-Example:  ${0##*/} -f pom.xml
+Example:  ${0##*/}
+          ${0##*/} -f pom.xml
           ${0##*/} -g my.groupId -a my.artifactId -v 4.7.11
 EOF
 }
@@ -52,7 +63,7 @@ check_required_helper() {
 # @see: http://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash#192266
 # @see: http://mywiki.wooledge.org/BashFAQ/035#getopts
 OPTIND=1         # Reset in case getopts has been used previously in the shell.
-while getopts "a:f:g:h?v:" opt;
+while getopts "a:f:g:h?pv:" opt;
 do
     case "$opt" in
       a)  artifactId="$OPTARG"
@@ -64,6 +75,8 @@ do
       h|\?)
           show_help
           exit 0
+      ;;
+      p)  wget_cmd="${wget_cmd} --no-proxy "
       ;;
       v)  version="$OPTARG"
       ;;
@@ -86,11 +99,11 @@ fi
 [ -z "${version}" ] && echo "The version is required." && exit 1 || true
 
 echo -n -e "Get dependees for artifact: ${groupId}/${artifactId} ${version}\n\n"
-# temp. working file for collect the mvn output
-temp_output_file=`tempfile -p"${0##*/}"`
 
-wget -nv -q --no-proxy -O ${temp_output_file} ${archiva_url}/${groupId}/${artifactId}/${version}/usedby
+${wget_cmd} ${archiva_url}/${groupId}/${artifactId}/${version}/usedby
 
-grep -A 4 -B 2 "<strong>Version(s):</strong>" ${temp_output_file} | grep -v "<strong>Version(s):</strong>" | xargs | \
+grep -A 4 -B 2 ${eyecatcher_in_html} ${temp_output_file} | grep -v ${eyecatcher_in_html} | xargs | \
   sed -e 's/\-\-/\n/g' | sed -r 's#^.*<a href=[^"]+>([^<]+)</a>.*<a href=[^"]+>([^<]+)</a>.*$#\1\t\2#' | sed 's/\-.*/\-SNAPSHOT/g' | sort -u
 trap "rm -f ${temp_output_file}" EXIT
+
+#
