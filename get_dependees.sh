@@ -11,7 +11,6 @@
 set -m
 # set -x
 
-required_helper=('mvn' 'tempfile' 'xargs' 'grep' 'sed' 'sort' 'wget')
 input_file='pom.xml'
 # temp. working file for wget output
 temp_output_file=`tempfile -p"${0##*/}"`
@@ -32,34 +31,18 @@ where the desired artifact is defined as a dependency.
 
 Without POM_FILE and maven artifact coordinates the default '$input_file' of current
 will be used.
-    
+
     -h|-?         display this help and exit.
     -a ARTIFACTID the Maven artifact id.
     -f POM_FILE   the Maven project file ('${input_file}').
     -g GROUPID    the Maven artifact group id.
     -p            disable use of proxy server.
     -v VERSION    the Maven artifact version.
-    
+
 Example:  ${0##*/}
           ${0##*/} -f pom.xml
           ${0##*/} -g my.groupId -a my.artifactId -v 4.7.11
 EOF
-}
-
-check_required_helper() {
-  helper=("$@")
-  for executable in "${helper[@]}";
-  do
-    # @see: http://stackoverflow.com/questions/592620/how-to-check-if-a-program-exists-from-a-bash-script
-    if hash $executable 2>/dev/null
-    then
-      [[ $verbose -gt 0 ]] && echo "found required executable: $executable"
-    else
-      echo "the executable: $executable is required!"
-      return 1
-    fi
-  done
-  return 0
 }
 
 ### CMD ARGS
