@@ -76,9 +76,9 @@ shift $((OPTIND-1))
 
 if [[ -z "${groupId}" && -z "${artifactId}" && -f "${input_file}" ]]
   then
-    groupId=`mvn help:evaluate -f ${input_file} -Dexpression=project.groupId | grep --color=never -Ev '(^\[|Download\w+:)'`
-    artifactId=`mvn help:evaluate -f ${input_file} -Dexpression=project.artifactId | grep --color=never -Ev '(^\[|Download\w+:)'`
-    [ -z "${version}" ] && version=`mvn help:evaluate -f ${input_file} -Dexpression=project.version | grep --color=never -Ev '(^\[|Download\w+:)'`
+    groupId=`mvn help:evaluate -f ${input_file} -Dexpression=project.groupId | grep --color=never -Ev '(^\[|WARNING|Download\w+:)'`
+    artifactId=`mvn help:evaluate -f ${input_file} -Dexpression=project.artifactId | grep --color=never -Ev '(^\[|WARNING|Download\w+:)'`
+    [ -z "${version}" ] && version=`mvn help:evaluate -f ${input_file} -Dexpression=project.version | grep --color=never -Ev '(^\[|WARNING|Download\w+:)'`
 fi
 
 [ -z "${groupId}" ] && echo "The groupId is required." && exit 1 || true
