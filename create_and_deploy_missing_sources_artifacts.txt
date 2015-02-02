@@ -1,0 +1,18 @@
+Basis POMs fuer Sourcecode Export in Export-Verzeichnis (./export) legen.
+  - de.icongmbh.commons-2.0.0.pom
+  - de.icongmbh.dope.connect-1.2.0.pom
+  - de.icongmbh.dope.dobre-1.2.6.pom
+
+Sourcecode exportieren fuer jedes POM.
+  mvn -f <POM file name> scm:export -DbaseDir=<export directory> -DexportDirectory=<POM file name> -N
+  $ find ./export -maxdepth 1 -name \*.pom -exec mvn -f {} scm:export -DbaseDir=./export -DexportDirectory={} -N \;
+
+Anpassen des 'packaging' Types von 'bundle' in 'jar'
+  find ./export -iname pom.xml -exec sed -i "s/<packaging>bundle<\/packaging>/<packaging>jar<\/packaging>/g" {} \;
+
+Sourcecode Artefakte fuer jeden exportierten Sourcecode erzeugen.
+  mvn -f <POM file name> source:jar
+  $ find ./export -maxdepth 2 -name pom.xml -exec mvn -f {} clean \;
+  $ find ./export -maxdepth 2 -name pom.xml -exec mvn -f {} source:jar \;
+
+Sourcecode Artefakte mit 'deploy_missing_sources_artefacts.sh' in Maven Repository deployen.
