@@ -25,6 +25,8 @@ do
     groupId=$(mvn help:evaluate -f ${pom_file} -Dexpression=project.groupId | grep --color=never -Ev '(^\[|WARNING|Download\w+:)')
     artifactId=$(mvn help:evaluate -f ${pom_file} -Dexpression=project.artifactId | grep --color=never -Ev '(^\[|WARNING|Download\w+:)')
     version=$(mvn help:evaluate -f ${pom_file} -Dexpression=project.version | grep --color=never -Ev '(^\[|WARNING|Download\w+:)')
-    mvn -q -Dfile=${jar} deploy:deploy-file -DrepositoryId=${maven_repository_id} -Durl=${maven_repository_url} -DgeneratePom=false -DartifactId=${artifactId} -DgroupId=${groupId} -Dpackaging=jar -Dclassifier=sources -Dversion=${version} -DupdateReleaseInfo=true
+    echo -n "Deploy: ${groupId}:${artifactId}:jar:sources:${version} "
+    mvn -q -Dfile=${jar} deploy:deploy-file -DrepositoryId=${maven_repository_id} -Durl=${maven_repository_url} -DgeneratePom=false -DartifactId=${artifactId} -DgroupId=${groupId} -Dpackaging=jar -Dclassifier=sources -Dversion=${version} -DupdateReleaseInfo=true 2>&1 | ${grep_cmd} "[ERROR] Failed to execute goal"
+    echo ""
   fi
 done
