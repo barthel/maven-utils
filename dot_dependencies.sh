@@ -44,11 +44,11 @@ merge_dependencies=0
 use_only_snapshot=0
 
 # page size; include in DOT file as page="..."; default DIN A 4
-dot_file_header="/* ${timestamp} ${0} ${@} */\ndigraph G {\n\ttaillabel=\"${timestamp} ${0} ${@}\";\n\tlabelfontsize=6;\n\tgraph [\n\t\tcompound=true,\n\t\tfontname=Courier,\n\t\tfontsize=8,\n\t\trankdir=LR\n\t];\n\tnode [\n\t\tfontname=Courier,\n\t\tfontsize=8,\n\t\tcolor=Black\n\t\tshape=rect\n\t];"
+dot_file_header="digraph G {\n\ttaillabel=\"${timestamp}\";\n\tlabelfontsize=6;\n\tgraph [\n\t\tcompound=true,\n\t\tfontname=Courier,\n\t\tfontsize=8,\n\t\trankdir=LR\n\t];\n\tnode [\n\t\tfontname=Courier,\n\t\tfontsize=8,\n\t\tcolor=Black\n\t\tshape=rect\n\t];"
 dot_file_footer="\n}"
 page_size='8.3,11.7'
 
-exec_mvn="mvn -B dependency:tree -DoutputType=dot -DappendOutput=true -Denforcer.skip=true"
+exec_mvn="mvn -q -B org.apache.maven.plugins:maven-dependency-plugin:2.10:tree -DoutputType=dot -DappendOutput=true -Denforcer.skip=true"
 
 sed_word_pattern='a-zA-Z\_0-9.-' # \w\d.-
 # "groupId:artifactId:type[:classifier]:version[:scope]" -> "artifactId:type[:classifier]:version"
@@ -73,7 +73,7 @@ exec_awk_duplicate_lines="awk '\$0 ~ \"}\" || !x[\$0]++'"
 exec_sed_duplicate_braces_line="sed -e'\$!N; /^\(.*\)\n\1\$/!P; D'"
 
 
-# filter and cut DOT output out of mvn message
+# filter and cut DOT output out of mvn console message
 exec_grep_filter_console_message='grep -E "[{;}]" | grep -v -E "[\$@]"'
 exec_cut_console_message='cut -d"]" -f2'
 
@@ -105,12 +105,12 @@ With no FILE the default '$input_files' will be used.
                  Forces a check for updated releases and snapshots on remote Maven repositories.
     -v           verbose mode. Can be used multiple times for increased verbosity.
     
-Example: ${0##*/} \`find . -iname pom.xml -exec grep -H -v "<modules>" {} \; | grep -v target | cut -d':' -f1 | sort | uniq | grep -E "^\.\/[di][oc]" | grep -v "dope.customer"\`
+Example: ${0##*/} \`find . -iname pom.xml -exec grep -H -v "<modules>" {} \; | grep -v "target\|bin" | cut -d':' -f1 | sort | uniq | grep -E "^\.\/[di][oc]" | grep -v "dope.customer"\`
 EOF
 }
 
 check_required_helper() {
-  helper=("$@")
+  helper=($@)
   for executable in "${helper[@]}";
   do
     # @see: http://stackoverflow.com/questions/592620/how-to-check-if-a-program-exists-from-a-bash-script
@@ -134,7 +134,7 @@ do
     case "$opt" in
     a)  exec_sed_normalize_artifacts=$sed_normalize_artifactId
         ;;
-    e)  exec_mvn="$exec_mvn -Dexcludes=\"$OPTARG\""
+    e)  exec_mvn="${exec_mvn} -Dexcludes=\"$OPTARG\""
         ;;
     h|\?)
         show_help
@@ -152,7 +152,7 @@ do
         ;;
     s)  use_only_snapshot=1
         ;;
-    u)  exec_mvn="$mvn_exec -U"
+    u)  exec_mvn="${exec_mvn} -U"
         ;;
     v)  verbose=$((verbose + 1))
         ;;
@@ -164,15 +164,15 @@ shift $((OPTIND-1))
 [ "$1" = "--" ] && shift;
 
 # use left over arguments as list of POM files
-[[ "${#}" -gt "0" ]] && input_files=("$@")
+[[ "${#}" -gt "0" ]] && input_files=($@)
 
 [[ $use_only_snapshot -gt 0 ]] && includes="$includes*-SNAPSHOT"
 
-[[ ! -z "$includes" ]] && exec_mvn="$exec_mvn -Dincludes=\"$includes\""
+[[ ! -z "$includes" ]] && exec_mvn="${exec_mvn} -Dincludes=\"$includes\""
 
 [[ $verbose -gt 0 ]] && echo -e "input_files: $input_files\noutput_file: $output_file\nincludes: $includes\nexcludes: $excludes\nverbose: $verbose\npage_size: $page_size"
-# add Maven verbose option if 'd' command line arg iwas more than once
-[[ $verbose -gt 1 ]] && exec_mvn="$exec_mvn -X"
+# add Maven verbose option if 'v' command line arg was more than twice
+[[ $verbose -gt 2 ]] && exec_mvn="${exec_mvn} -X"
 ### CMD ARGS
 
 check_required_helper "${required_helper[@]}"
@@ -181,7 +181,7 @@ check_required_helper "${required_helper[@]}"
 # @see: http://stackoverflow.com/questions/592620/how-to-check-if-a-program-exists-from-a-bash-script
 if hash nproc 2>/dev/null
 then
-  exec_mvn="$exec_mvn -T`nproc`"
+  exec_mvn="${exec_mvn} -T`nproc`"
 fi
 
 ### DEPENDENCIES
@@ -197,10 +197,10 @@ do
   # -DoutputFile and -Doutput seems not work in this special behaviour :-(
   #    mvn_cmd="$exec_mvn -DoutputFile=$temp_output_file -Doutput=$temp_output_file -Dincludes=\"$include\" -f \"$pom_file\" "
   # use the console output instead
-  mvn_cmd="$exec_mvn -f\"$pom_file\" 2>&1 | $exec_grep_filter_console_message | $exec_cut_console_message"
+  mvn_cmd="$exec_mvn -f\"$pom_file\" -DoutputFile=${temp_dependencies_output_file}"
   [[ $verbose -gt 0 ]] && echo "$mvn_cmd"
   # send job to background to get the PID
-  eval $mvn_cmd >> $temp_dependencies_output_file &
+  eval $mvn_cmd &
   if hash ionice 2>/dev/null
   then
     # set priviliged I/O access
