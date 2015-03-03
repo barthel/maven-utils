@@ -48,7 +48,9 @@ dot_file_header="digraph G {\n\ttaillabel=\"${timestamp}\";\n\tlabelfontsize=6;\
 dot_file_footer="\n}"
 page_size='8.3,11.7'
 
-exec_mvn="mvn -q -B org.apache.maven.plugins:maven-dependency-plugin:2.10:tree -DoutputType=dot -DappendOutput=true -Denforcer.skip=true"
+# outputFile doesn't work with reactor POMs
+#exec_mvn="mvn -q -B org.apache.maven.plugins:maven-dependency-plugin:2.10:tree -DoutputType=dot -DappendOutput=true -Denforcer.skip=true"
+exec_mvn="mvn -B org.apache.maven.plugins:maven-dependency-plugin:2.10:tree -DoutputType=dot -Denforcer.skip=true"
 
 sed_word_pattern='a-zA-Z\_0-9.-' # \w\d.-
 # "groupId:artifactId:type[:classifier]:version[:scope]" -> "artifactId:type[:classifier]:version"
@@ -74,8 +76,9 @@ exec_sed_duplicate_braces_line="sed -e'\$!N; /^\(.*\)\n\1\$/!P; D'"
 
 
 # filter and cut DOT output out of mvn console message
+#exec_grep_filter_console_message='grep -E "^\[INFO\].*[{;}]" | grep -v -E "[\$@]"'
 exec_grep_filter_console_message='grep -E "[{;}]" | grep -v -E "[\$@]"'
-exec_cut_console_message='cut -d"]" -f2'
+exec_cut_console_message='cut -d"]" -f2 | sed -r "s/(\s*\(.*)$/\" ;/g"'
 
 show_help() {
 cat << EOF
@@ -172,7 +175,7 @@ shift $((OPTIND-1))
 
 [[ $verbose -gt 0 ]] && echo -e "input_files: $input_files\noutput_file: $output_file\nincludes: $includes\nexcludes: $excludes\nverbose: $verbose\npage_size: $page_size"
 # add Maven verbose option if 'v' command line arg was more than twice
-[[ $verbose -gt 2 ]] && exec_mvn="${exec_mvn} -X"
+#[[ $verbose -gt 2 ]] && exec_mvn="${exec_mvn} -X"
 ### CMD ARGS
 
 check_required_helper "${required_helper[@]}"
@@ -189,18 +192,20 @@ fi
 temp_dependencies_output_file=`tempfile -p"${0##*/}"`
 temp_output_file=`tempfile -p"${0##*/}"`
 
+[[ $verbose -gt 1 ]] && echo -e "temp_dependencies_output_file: ${temp_dependencies_output_file}\ntemp_output_file: ${temp_output_file}"
+
 counter=1
 # iterate over the POM file list and exec mvn
 for pom_file in "${input_files[@]}"
 do
   [[ $quiet -lt 1 ]] && echo "working on [$counter/${#input_files[@]}]: $pom_file"
   # -DoutputFile and -Doutput seems not work in this special behaviour :-(
-  #    mvn_cmd="$exec_mvn -DoutputFile=$temp_output_file -Doutput=$temp_output_file -Dincludes=\"$include\" -f \"$pom_file\" "
+  #    mvn_cmd="$exec_mvn -DoutputFile=${temp_dependencies_output_file} -f \"${pom_file}\" "
   # use the console output instead
-  mvn_cmd="$exec_mvn -f\"$pom_file\" -DoutputFile=${temp_dependencies_output_file}"
+  mvn_cmd="$exec_mvn -f\"${pom_file}\" 2>&1 | ${exec_grep_filter_console_message} | ${exec_cut_console_message}"
   [[ $verbose -gt 0 ]] && echo "$mvn_cmd"
   # send job to background to get the PID
-  eval $mvn_cmd &
+  eval $mvn_cmd >> $temp_dependencies_output_file &
   if hash ionice 2>/dev/null
   then
     # set priviliged I/O access
