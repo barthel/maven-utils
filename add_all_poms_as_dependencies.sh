@@ -1,18 +1,17 @@
 #!/bin/bash
 echo "start"
 
-echo '<?xml version="1.0" encoding="UTF-8"?>' > dependency-pom.xml
-echo '<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"' >> dependency-pom.xml
-echo '  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">' >> dependency-pom.xml
-echo ' ' >> dependency-pom.xml
-echo ' <modelVersion>4.0.0</modelVersion>' >> dependency-pom.xml
-echo ' ' >> dependency-pom.xml
-echo ' <groupId>de.icongmbh.dope</groupId>' >> dependency-pom.xml
-echo ' <artifactId>de.icongmbh.dope.dependencies</artifactId>' >> dependency-pom.xml
-echo ' <version>4.0.0-SNAPSHOT</version>' >> dependency-pom.xml
-echo ' <packaging>pom</packaging>' >> dependency-pom.xml
-echo ' ' >> dependency-pom.xml
-echo ' <dependencies>' >> dependency-pom.xml
+cat > dependency-pom.xml << EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+ <modelVersion>4.0.0</modelVersion>
+ <groupId>de.icongmbh.dope</groupId>
+ <artifactId>de.icongmbh.dope.dependencies</artifactId>
+ <version>4.0.0-SNAPSHOT</version>
+ <packaging>pom</packaging>
+ <dependencies>
+EOF
 
 POM_LIST=`find . -mindepth 2 -maxdepth 2 -iname pom.xml`
 
