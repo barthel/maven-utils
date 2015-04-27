@@ -17,5 +17,5 @@ version="${2//\./\\.}"
 # find relative path only of files with name pattern and the path does not contains one of the path pattern
 # select file names containing the version string
 # inline replace of version
-find . -type f \( -name '*pom.xml' -and -not -ipath '*/.git/*' -and -not -ipath '*/target/*' -and -not -ipath '*/bin/*' \) | xargs grep -l "<${versionString}>" | xargs sed -i '' "s|<\(${versionString}\)>\(.*\)<|<\1>${version}<|"
+find . -type f \( -name '*pom.xml' -and -not -ipath '*/.git/*' -and -not -ipath '*/target/*' -and -not -ipath '*/bin/*' \) | xargs grep -l "<${versionString}>" | xargs sed -i'' "s|<\(${versionString}\)>\(.*\)<|<\1>${version}<|"
 
