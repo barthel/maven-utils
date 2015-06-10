@@ -1,7 +1,5 @@
 Basis POMs fuer Sourcecode Export in Export-Verzeichnis (./export) legen.
-  - de.icongmbh.commons-2.0.0.pom
-  - de.icongmbh.dope.connect-1.2.0.pom
-  - de.icongmbh.dope.dobre-1.2.6.pom
+  - my.foo.bar-2.0.0.pom
 
 Sourcecode exportieren fuer jedes POM.
   mvn -f <POM file name> scm:export -DbaseDir=<export directory> -DexportDirectory=<POM file name> -N
