@@ -2,7 +2,7 @@
 
 # Get dependees for Maven artifact.
 #
-# This script will search all artifacts in remote Maven repository manager,
+# This script will search all artifacts in remote Apache Archiva (1.x) Maven repository manager,
 # where the desired artifact is defined as a dependency.
 #
 
@@ -15,13 +15,13 @@ input_file='pom.xml'
 # temp. working file for wget output
 temp_output_file=`tempfile -p"${0##*/}"`
 
-archiva_url="http://archiva.icongmbh.de/archiva/browse"
+archiva_url=""
 eyecatcher_in_html="<strong>Version(s):</strong>"
 wget_cmd="wget -nv -q --no-proxy -O ${temp_output_file} "
 
-show_help() {
+_show_help() {
 cat << EOF
-Usage: ${0##*/} [-h?p] [-f POM_FILE] [-a ARTIFACTID -g GROUPID -v VERSION]
+Usage: ${0##*/} [-h?p] -u ARCHIVA_URL [-f POM_FILE] [-a ARTIFACTID -g GROUPID -v VERSION]
 
 Get dependees for Maven artifact provided by POM_FILE or
 artifact coordinates (GROUPID, ARTIFACTID and VERSION).
@@ -32,16 +32,17 @@ where the desired artifact is defined as a dependency.
 Without POM_FILE and maven artifact coordinates the default '$input_file' of current
 will be used.
 
-    -h|-?         display this help and exit.
-    -a ARTIFACTID the Maven artifact id.
-    -f POM_FILE   the Maven project file ('${input_file}').
-    -g GROUPID    the Maven artifact group id.
-    -p            disable use of proxy server.
-    -v VERSION    the Maven artifact version.
+    -h|-?          display this help and exit.
+    -u ARCHIVA_URL the root URL of Apache Archiva Maven repository manager
+    -a ARTIFACTID  the Maven artifact id.
+    -f POM_FILE    the Maven project file ('${input_file}').
+    -g GROUPID     the Maven artifact group id.
+    -p             disable use of proxy server.
+    -v VERSION     the Maven artifact version.
 
 Example:  ${0##*/}
-          ${0##*/} -f pom.xml
-          ${0##*/} -g my.groupId -a my.artifactId -v 4.7.11
+          ${0##*/} -u http://archiva.company.tld/archiva/ -f pom.xml
+          ${0##*/} -u http://archiva.company.tld:8080 -g my.groupId -a my.artifactId -v 4.7.11
 EOF
 }
 
@@ -50,7 +51,7 @@ EOF
 # @see: http://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash#192266
 # @see: http://mywiki.wooledge.org/BashFAQ/035#getopts
 OPTIND=1         # Reset in case getopts has been used previously in the shell.
-while getopts "a:f:g:h?pv:" opt;
+while getopts "a:f:g:h?pv:u:" opt;
 do
     case "$opt" in
       a)  artifactId="$OPTARG"
@@ -60,8 +61,10 @@ do
       g)  groupId="$OPTARG"
       ;;
       h|\?)
-          show_help
+          _show_help
           exit 0
+      ;;
+      u)  archiva_url="$OPTARG"
       ;;
       p)  wget_cmd="${wget_cmd} --no-proxy "
       ;;
@@ -73,6 +76,10 @@ done
 shift $((OPTIND-1))
 
 [ "$1" = "--" ] && shift;
+
+[ -z "${archiva_url}" ] && echo "Archiva URL required." && _show_help && exit 1 || true
+
+archiva_url="${archiva_url}/browse"
 
 if [[ -z "${groupId}" && -z "${artifactId}" && -f "${input_file}" ]]
   then
