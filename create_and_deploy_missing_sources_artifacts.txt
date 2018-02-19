@@ -4,19 +4,36 @@ Basis POMs fuer Sourcecode Export in Export-Verzeichnis (./export) legen.
 Sourcecode exportieren fuer jedes POM.
   mvn -f <POM file name> scm:export -DbaseDir=<export directory> -DexportDirectory=<POM file name> -N
   $ find ./export -mindepth 1 -maxdepth 1 -name \*.pom -exec mvn -f {} scm:export -DbaseDir=./export -DexportDirectory={} -N \;
+
+  Ggf. funktioniert scm:export nicht, dann kann scm:checkout probiert werden:
+  $ find ./export -mindepth 1 -maxdepth 1 -name \*.pom -exec mvn -f {} scm:checkout -DbaseDir=./export -DcheckoutDirectory={} -N \;
+
+  Oder ein GIT clone auf Basis der SCM Connection:
+  $ for POM in $(find ./export -mindepth 1 -maxdepth 1 -name \*.pom); do \
+  SCM_CONNECTION=$(mvn -N help:evaluate -Dexpression=project.scm.connection -f $POM | grep --color=never -Ev '(^\[|WARNING|Download\w+:)' | cut -d: -f3-); \
+  SCM_TAG=$(mvn -N help:evaluate -Dexpression=project.scm.tag  -f $POM | grep --color=never -Ev '(^\[|WARNING|Download\w+:)'); \
+  ARTIFACTID=$(mvn -N help:evaluate -Dexpression=project.artifactId  -f $POM | grep --color=never -Ev '(^\[|WARNING|Download\w+:)'); \
+  echo "$POM ($ARTIFACTID) $SCM_CONNECTION ($SCM_TAG)"
+  git clone --no-checkout --branch $SCM_TAG -- $(echo $SCM_CONNECTION  | cut -d/ -f-4) ./export/$POM; \
+  cd ./export/$POM; \
+  git read-tree $SCM_TAG:$ARTIFACTID
+  git checkout-index --force --all --prefix=$ARTIFACTID/ ; \
+  cd -; \
+  done
+
   Sollte es Schwierigkeiten beim Export geben, die Sourcen manuell bereitstellen:
   mkdir -p ./export/<POM file name>
   SVN:
-    svn export -r <scm TAG element in POM file> <scm URL without 'scm:svn:' in POM file> ./export/<POM file name> 
+    svn export -r <scm TAG element in POM file> <scm URL without 'scm:svn:' in POM file> ./export/export/<POM file name>
   GIT:
-    git archive --format=tar --remote=<scm URL in POM file without 'scm:git:'> <scm TAG element in POM file> [<project directory in repository>/ ...] | tar -x -C ./export/<POM file name>/
+    git archive --format=tar --remote=<scm URL in POM file without 'scm:git:'> <scm TAG element in POM file> [<project directory in repository>/ ...] | tar -x -C ./export/export/<POM file name>/
 
 Anpassen des 'packaging' Types von 'bundle' in 'jar'
-  $ find ./export -iname pom.xml -exec sed -i "s/<packaging>bundle<\/packaging>/<packaging>jar<\/packaging>/g" {} \;
+  $ find ./export/export -iname pom.xml -exec sed -i "s/<packaging>bundle<\/packaging>/<packaging>jar<\/packaging>/g" {} \;
 
 Sourcecode Artefakte fuer jeden exportierten Sourcecode erzeugen.
   mvn -f <POM file name> source:jar
-  $ find ./export -mindepth 2 -maxdepth 3 -name pom.xml -exec mvn -f {} clean \;
-  $ find ./export -mindepth 2 -maxdepth 3 -name pom.xml -exec mvn -f {} source:jar \;
+  $ find ./export/export -mindepth 2 -maxdepth 3 -name pom.xml -exec mvn -f {} clean \;
+  $ find ./export/export -mindepth 2 -maxdepth 3 -name pom.xml -exec mvn -f {} source:jar \;
 
 Sourcecode Artefakte mit 'deploy_missing_sources_artefacts.sh' in Maven Repository deployen.
