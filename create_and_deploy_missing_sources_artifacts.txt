@@ -13,7 +13,7 @@ Sourcecode exportieren fuer jedes POM.
   SCM_CONNECTION=$(mvn -N help:evaluate -Dexpression=project.scm.connection -f $POM | grep --color=never -Ev '(^\[|WARNING|Download\w+:)' | cut -d: -f3-); \
   SCM_TAG=$(mvn -N help:evaluate -Dexpression=project.scm.tag  -f $POM | grep --color=never -Ev '(^\[|WARNING|Download\w+:)'); \
   ARTIFACTID=$(mvn -N help:evaluate -Dexpression=project.artifactId  -f $POM | grep --color=never -Ev '(^\[|WARNING|Download\w+:)'); \
-  echo "$POM ($ARTIFACTID) $SCM_CONNECTION ($SCM_TAG)"
+  echo "$POM ($ARTIFACTID) $SCM_CONNECTION ($SCM_TAG)" \
   git clone --no-checkout --branch $SCM_TAG -- $(echo $SCM_CONNECTION  | cut -d/ -f-4) ./export/$POM; \
   cd ./export/$POM; \
   git read-tree $SCM_TAG:$ARTIFACTID \
