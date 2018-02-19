@@ -16,7 +16,7 @@ Sourcecode exportieren fuer jedes POM.
   echo "$POM ($ARTIFACTID) $SCM_CONNECTION ($SCM_TAG)"
   git clone --no-checkout --branch $SCM_TAG -- $(echo $SCM_CONNECTION  | cut -d/ -f-4) ./export/$POM; \
   cd ./export/$POM; \
-  git read-tree $SCM_TAG:$ARTIFACTID
+  git read-tree $SCM_TAG:$ARTIFACTID \
   git checkout-index --force --all --prefix=$ARTIFACTID/ ; \
   cd -; \
   done
