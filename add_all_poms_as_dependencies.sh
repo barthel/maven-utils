@@ -13,9 +13,11 @@ cat > dependency-pom.xml << EOF
  <dependencies>
 EOF
 
-POM_LIST=`find . -mindepth 2 -maxdepth 2 -iname pom.xml`
+POM_LIST=(${1})
 
-for i in $POM_LIST;
+[ 0 == ${#POM_LIST[@]} ] && POM_LIST=$()find . -mindepth 2 -maxdepth 2 -iname pom.xml) || true
+
+for i in "${POM_LIST[@]}";
 do
 
   echo "working on: $i"
