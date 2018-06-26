@@ -7,9 +7,8 @@
 # Example(s):
 #
 # 1) Complete overview
-# Use all POM files (but ignore reactor/module POM files) based on directory structure (git repositories) where the name of the directory (git repository) starts
-# with 'do' or 'ic' and ignore 'dope.customer':
-#   dot_dependencies.sh -m -a `find . -iname pom.xml -exec grep -H -v "<modules>" {} \; | grep -v target | cut -d':' -f1 | sort | uniq | grep -E "^\.\/[di][oc]" | grep -v "dope.customer"`
+# Use all POM files (but ignore reactor/module POM files) based on directory structure (git repositories):
+#   dot_dependencies.sh -m -a `find . -iname pom.xml -exec grep -H -v "<modules>" {} \; | grep -v target | cut -d':' -f1 | sort | uniq
 #
 # Use the DOT file like:
 #   xdot --filter=dot $output_file
@@ -28,14 +27,14 @@ set -m
 verbose=0
 quiet=0
 
-required_helper=('hash' 'date' 'mvn' 'tempfile' 'cat' 'grep' 'cut' 'sed' 'awk' 'prune')
+required_helper=('hash' 'date' 'mvn' 'mktemp' 'cat' 'grep' 'cut' 'sed' 'awk' 'prune')
 
-timestamp=`date --rfc-3339=seconds`
+timestamp=`date -R`
 
 input_files=('pom.xml')
 output_file='dependencies.dot'
 # filter for atifacts
-includes='de.icongmbh.*:::'
+includes='*:::'
 excludes=''
 
 # merge dependencies / remove duplicate lines from DOT file
@@ -108,7 +107,7 @@ With no FILE the default '$input_files' will be used.
                  Forces a check for updated releases and snapshots on remote Maven repositories.
     -v           verbose mode. Can be used multiple times for increased verbosity.
     
-Example: ${0##*/} \`find . -iname pom.xml -exec grep -H -v "<modules>" {} \; | grep -v "target\|bin" | cut -d':' -f1 | sort | uniq | grep -E "^\.\/[di][oc]" | grep -v "dope.customer"\`
+Example: ${0##*/} \`find . -iname pom.xml -exec grep -H -v "<modules>" {} \; | grep -v "target\|bin" | cut -d':' -f1 | sort | uniq\`
 EOF
 }
 
@@ -189,8 +188,9 @@ fi
 
 ### DEPENDENCIES
 # temp. working file for collect the mvn output
-temp_dependencies_output_file=`tempfile -p"${0##*/}"`
-temp_output_file=`tempfile -p"${0##*/}"`
+# @see: https://stackoverflow.com/a/31397073/4956096
+temp_dependencies_output_file=`mktemp "${TMPDIR:-/tmp}/dep_${0##*/}.XXXXXXXXX"`
+temp_output_file=`mktemp "${TMPDIR:-/tmp}/${0##*/}.XXXXXXXXX"`
 
 [[ $verbose -gt 1 ]] && echo -e "temp_dependencies_output_file: ${temp_dependencies_output_file}\ntemp_output_file: ${temp_output_file}"
 
