@@ -76,7 +76,7 @@ exec_sed_duplicate_braces_line="sed -e'\$!N; /^\(.*\)\n\1\$/!P; D'"
 
 # filter and cut DOT output out of mvn console message
 #exec_grep_filter_console_message='grep -E "^\[INFO\].*[{;}]" | grep -v -E "[\$@]"'
-exec_grep_filter_console_message='grep -E "[{;}]" | grep -v -E "[\$@]"'
+exec_grep_filter_console_message='grep -E "[{;}]" | grep -v -E "[\$@]" | grep -v "osgi.os"'
 exec_cut_console_message='cut -d"]" -f2 | sed -r "s/(\s*\(.*)$/\" ;/g"'
 
 show_help() {
