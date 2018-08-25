@@ -1,4 +1,13 @@
 #!/bin/bash
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# (c) barthel <barthel@users.noreply.github.com> https://github.com/barthel
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
 # Use the passed list of lokal OSGi Declarative Service descriptor XML files.
 #
 # The DOT-output will be created and surround by 'digraph G' and formatting information.
@@ -18,15 +27,16 @@
 #   dot -Tps2 service_dependencies_nopage.dot | ps2pdf -dSAFER -dOptimize=true - service_dependencies_nopage.dot.pdf
 # @see: https://maven.apache.org/plugins/maven-dependency-plugin/tree-mojo.html
 
-# activate job monitoring
-# @see: http://www.linuxforums.org/forum/programming-scripting/139939-fg-no-job-control-script.html
-set -m
+
+script_directory="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+. ${script_directory}/_global_functions.sh
+
+# activate debug output
 # set -x
 
-verbose=0
-quiet=0
-
-required_helper=('date' 'mktemp' 'cat' 'grep' 'cut' 'prune' 'xmllint')
+# check the presens of required tools/commands/executables
+_check_required_helper 'date' 'mktemp' 'cat' 'grep' 'cut' 'prune' 'xmllint'
+[ 0 != $? ] && exit $? || true
 
 timestamp=`date -R`
 
@@ -52,34 +62,19 @@ Usage: ${0##*/} [-h?qv] [-o OUTFILE] [-p PAGE_SIZE] [FILE]...
 
 Create a DOT file based on Maven dependencies (as a 'subgraph') provided by FILE.
 
-With no FILE the default '$input_files' will be used.
-    
+With no FILE the default '${input_files}' will be used.
+
     -h|-?        display this help and exit.
-    -o OUTFILE   Write the result to OUTFILE ('$output_file').
+    -o OUTFILE   Write the result to OUTFILE ('${output_file}').
     -p PAGE_SIZE The page size in inch.
                  See: http://www.graphviz.org/content/attrs#dpage for more information
     -q           quiet mode.
     -v           verbose mode. Can be used multiple times for increased verbosity.
-    
+
 Example: ${0##*/} \`find . -ipath \*/OSGI-INF/\*.xml -exec grep -wl "http://www.osgi.org/xmlns/scr/v1" {} \;\`
 EOF
 }
 
-check_required_helper() {
-  helper=($@)
-  for executable in "${helper[@]}";
-  do
-    # @see: http://stackoverflow.com/questions/592620/how-to-check-if-a-program-exists-from-a-bash-script
-    if hash $executable 2>/dev/null
-    then
-      [[ $verbose -gt 0 ]] && echo "found required executable: $executable"
-    else
-      echo "the executable: $executable is required!"
-      return 1
-    fi
-  done
-  return 0
-}
 ### CMD ARGS
 # process command line arguments
 # @see: http://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash#192266
@@ -113,8 +108,6 @@ shift $((OPTIND-1))
 
 [[ $verbose -gt 0 ]] && echo -e "input_files: $input_files\noutput_file: $output_file\nverbose: $verbose\npage_size: $page_size"
 ### CMD ARGS
-
-check_required_helper "${required_helper[@]}"
 
 ### DEPENDENCIES
 # temp. working file for collect the output
@@ -161,7 +154,7 @@ do
     reference_counter=$((reference_counter + 1))
   done
   echo -e "\t\t} ;\n\t} ;" >> ${temp_dependencies_output_file}
- 
+
   counter=$((counter + 1))
 done
 
@@ -185,4 +178,3 @@ prune ${temp_output_file} > ${output_file}
 # clean up temp. work file if verbose level is lower than '2'
 # @see: http://www.linuxjournal.com/content/use-bash-trap-statement-cleanup-temporary-files
 [[ ${verbose} -lt 2 ]] && trap "rm -f ${temp_dependencies_output_file} ${temp_output_file}" EXIT
-
