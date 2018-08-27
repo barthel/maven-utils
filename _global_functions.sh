@@ -92,11 +92,12 @@ _append_verbose_parameter() {
 
   if [ 0 -lt ${_verbose} ]
     then
-     _argument+=" "
-     for (( level=0; level<${_verbose}; level++ ))
+     _argument+=" -v"
+     for (( level=1; level<${_verbose}; level++ ))
       do
-        _argument+="-v "
+        _argument+="v"
     done
+    _argument+=" "
     echo "${_argument}"
   fi
 }
