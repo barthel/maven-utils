@@ -58,6 +58,6 @@ property_name="${1}\.version"
 # 2. 'xargs grep -l ...'   - select file names containing the version string
 # 3. 'xargs sed ...'       - inline replace of version
 # @see: http://stackoverflow.com/questions/7573368/in-place-edits-with-sed-on-os-x
-cmd="_build_find_cmd \"*pom.xml\" | xargs grep -l \"<${property_name}>\"| xargs sed -i'' \"s|<\(${property_name}\)>\(.*\)<|<\1>${version}<|\""
+cmd="_build_find_cmd \"*pom.xml\" | xargs grep -l \"<${property_name}>\"| xargs sed -i '' \"s|<\(${property_name}\)>\(.*\)<|<\1>${version}<|\""
 [ 0 -lt ${verbose} ] && echo "Execute: ${cmd}"
 eval ${cmd}
