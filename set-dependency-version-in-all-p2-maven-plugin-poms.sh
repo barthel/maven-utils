@@ -193,7 +193,7 @@ _build_cmd() {
 
   local _artifact_property_sed_filter
   local _artifact_id_sed_filter
- 
+
   _artifact_property_sed_filter=$(_build_property_sed_regexp ${_artifact_id} ${_artifact_property_filter} ${_artifact_version})
   _artifact_id_sed_filter=$(_build_id_sed_regexp ${_artifact_id} ${_artifact_id_filter} ${_artifact_version})
 
@@ -201,12 +201,10 @@ _build_cmd() {
   # 1. '_build_find_cmd ...' - find relative path only of files with name pattern and
   #                            and the path does not contains one of the path pattern
   # 2. 'xargs grep -l ...'   - select file names containing the'p2-mven-plugin' pattern
-  # 3. 'xargs sed ...'       - inline replace of version
-  # @see: http://stackoverflow.com/questions/7573368/in-place-edits-with-sed-on-os-x
-  # @see: https://unix.stackexchange.com/a/32777/201598
-
-  # TODO: the id replacement is not avaible until the first sed returns the name of the modified file
-  eval "_build_find_cmd \"*pom.xml\" | xargs grep -l \"<artifactId>p2-maven-plugin</artifactId>\" | xargs sed -i'' \"${_artifact_property_sed_filter}\" | xargs sed -i'' \"${_artifact_id_sed_filter}\""
+  # 3. 'xargs sed ...'       - combining inline replace of the property version filter and the id version
+  # @see: https://stackoverflow.com/questions/7573368/in-place-edits-with-sed-on-os-x#7573438
+  # @see: https://stackoverflow.com/questions/7657647/combining-two-sed-commands#7657662
+  eval "_build_find_cmd \"*pom.xml\" | xargs grep -l \"<artifactId>p2-maven-plugin</artifactId>\" | xargs sed -i'' \"${_artifact_property_sed_filter};${_artifact_id_sed_filter}\""
 }
 
 # Replace version in dependency definition of p2-maven-plugin
