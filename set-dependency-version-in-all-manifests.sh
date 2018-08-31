@@ -89,7 +89,7 @@ _build_cmd() {
   # 2. 'xargs grep -l ...'   - select file names containing the OSGI "Require-Bundle"-header pattern
   # 3. 'xargs sed ...'       - inline replace of version
   # @see: http://stackoverflow.com/questions/7573368/in-place-edits-with-sed-on-os-x
-  eval "_build_find_cmd \"MANIFEST.MF\" | xargs grep -l \"${_artifact_id}\;bundle-version=\" | xargs sed -i'' \"${_sed_regexp}\""
+  eval "_build_find_cmd \"MANIFEST.MF\" | xargs grep -l \"${_artifact_id}\;bundle-version=\" | xargs sed -i '' \"${_sed_regexp}\""
 }
 
 # Replace version in dependency definition of MANIFEST.MF

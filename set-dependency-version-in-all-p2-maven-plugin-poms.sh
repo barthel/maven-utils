@@ -204,7 +204,7 @@ _build_cmd() {
   # 3. 'xargs sed ...'       - combining inline replace of the property version filter and the id version
   # @see: https://stackoverflow.com/questions/7573368/in-place-edits-with-sed-on-os-x#7573438
   # @see: https://stackoverflow.com/questions/7657647/combining-two-sed-commands#7657662
-  eval "_build_find_cmd \"*pom.xml\" | xargs grep -l \"<artifactId>p2-maven-plugin</artifactId>\" | xargs sed -i'' \"${_artifact_property_sed_filter};${_artifact_id_sed_filter}\""
+  eval "_build_find_cmd \"*pom.xml\" | xargs grep -l \"<artifactId>p2-maven-plugin</artifactId>\" | xargs sed -i '' \"${_artifact_property_sed_filter};${_artifact_id_sed_filter}\""
 }
 
 # Replace version in dependency definition of p2-maven-plugin
