@@ -15,7 +15,8 @@
 # ------
 # [...]
 #   script_directory="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-#   . ${script_directory}/_global_functions.sh
+#   # shellcheck source=/dev/null #@see: https://github.com/koalaman/shellcheck/wiki/SC1090
+#   . "${script_directory}/_global_functions.sh"
 # [...]
 #
 

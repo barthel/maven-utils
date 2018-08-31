@@ -28,7 +28,8 @@
 # @see: https://maven.apache.org/plugins/maven-dependency-plugin/tree-mojo.html
 
 script_directory="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-. ${script_directory}/_global_functions.sh
+# shellcheck source=/dev/null #@see: https://github.com/koalaman/shellcheck/wiki/SC1090
+. "${script_directory}/_set_dependencies_functions.sh"
 
 # activate debug output
 # set -x
