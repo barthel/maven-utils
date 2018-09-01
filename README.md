@@ -5,7 +5,7 @@ Helper scripts around [Apache Maven][maven]¹ usage.
 All these scripts are *NOT* speed optimized!
 I'm using these scripts often in my daily work and they does what they have to do.
 
-File starting with `_` are primarily to include (source) in other scripts. These files providing global re-usable functions and should not be executed directly.
+A file located in `lib/` and/or the file name starts with a `_` is primarily for use to include (source) into other scripts. These files providing global re-usable functions and should not be executed directly.
 
 More and deeper documentation could be found in ['doc/'](./doc/).
 

@@ -21,8 +21,8 @@
 # [...]
 #   [ -z "${SCRIPT_DIRECTORY}" ] && SCRIPT_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )" && export SCRIPT_DIRECTORY
 #   # @see: https://github.com/koalaman/shellcheck/wiki/SC1090
-#   # shellcheck source=./_global_functions.sh
-#   . "${SCRIPT_DIRECTORY}/_global_functions.sh"
+#   # shellcheck source=./lib/_global_functions.sh
+#   . "${SCRIPT_DIRECTORY}/lib/_global_functions.sh"
 # [...]
 #
 

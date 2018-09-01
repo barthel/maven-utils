@@ -122,11 +122,10 @@
 
 # Include global functions
 # @see: http://wiki.bash-hackers.org/syntax/shellvars
-export SCRIPT_DIRECTORY
-SCRIPT_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+[ -z "${SCRIPT_DIRECTORY}" ] && SCRIPT_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )" && export SCRIPT_DIRECTORY
 # @see: https://github.com/koalaman/shellcheck/wiki/SC1090
-# shellcheck source=./_set_dependencies_functions.sh
-. "${SCRIPT_DIRECTORY}/_set_dependencies_functions.sh"
+# shellcheck source=./lib/_set_dependencies_functions.sh
+. "${SCRIPT_DIRECTORY}/lib/_set_dependencies_functions.sh"
 
 # check the presens of required tools/commands/executables
 _check_required_helper 'grep' 'xargs' 'sed'

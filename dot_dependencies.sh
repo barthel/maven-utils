@@ -27,16 +27,15 @@
 #   dot -Tps2 dependencies_nopage.dot | ps2pdf -dSAFER -dOptimize=true - dependencies_nopage.dot.pdf
 # @see: https://maven.apache.org/plugins/maven-dependency-plugin/tree-mojo.html
 
-script_directory="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-# shellcheck source=/dev/null #@see: https://github.com/koalaman/shellcheck/wiki/SC1090
-. "${script_directory}/_set_dependencies_functions.sh"
-
-# activate debug output
-# set -x
+# Include global functions
+# @see: http://wiki.bash-hackers.org/syntax/shellvars
+[ -z "${SCRIPT_DIRECTORY}" ] && SCRIPT_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )" && export SCRIPT_DIRECTORY
+# @see: https://github.com/koalaman/shellcheck/wiki/SC1090
+# shellcheck source=./lib/_global_functions.sh
+. "${SCRIPT_DIRECTORY}/lib/_global_functions.sh"
 
 # check the presens of required tools/commands/executables
 _check_required_helper 'hash' 'date' 'mvn' 'mktemp' 'cat' 'grep' 'cut' 'sed' 'awk' 'prune'
-[ 0 != $? ] && exit $? || true
 
 timestamp=`date -R`
 

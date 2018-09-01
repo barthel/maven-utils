@@ -17,8 +17,8 @@
 # [...]
 #   [ -z "${SCRIPT_DIRECTORY}" ] && SCRIPT_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )" && export SCRIPT_DIRECTORY
 #   # @see: https://github.com/koalaman/shellcheck/wiki/SC1090
-#   # shellcheck source=./_set_dependencies_functions.sh
-#   . ${SCRIPT_DIRECTORY}/_set_dependencies_functions.sh
+#   # shellcheck source=./lib/_set_dependencies_functions.sh
+#   . ${SCRIPT_DIRECTORY}/lib/_set_dependencies_functions.sh
 # [...]
 #
 
@@ -35,7 +35,7 @@ export EXIT_CODE_SED_SCRIPT_REQUIRED=60
 # Includes shared functions, checks and provides the command line arguments.
 # @see: https://github.com/koalaman/shellcheck/wiki/SC1090
 # shellcheck source=./_global_functions.sh
-. "${SCRIPT_DIRECTORY}/_global_functions.sh"
+. "${SCRIPT_DIRECTORY}/lib/_global_functions.sh"
 
 # check the presens of required tools/commands/executables
 _check_required_helper 'cat'
