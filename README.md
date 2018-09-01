@@ -15,13 +15,13 @@ Most of these scripts has a _help_-option (`-h`, `-?`), a _quiet_-option (`-q`) 
 
 The _usage_ information will be displayed if a script will executed without any arguments or with a help-option (`-h`, `-?`).
 
-## Bulk change artifact version
+## [Bulk change artifact version](./set-dependency-version.md "set-dependency-version.md")
 
 The main intention of scripts with the name prefix `set-dependency-version` is to change the artifact version in a bulk.
 
 These scripts are not using Apache Maven¹ itself rather they based on search-and-replace pattern in specific files (`pom.xml`, `MANIFEST.MF` ...).
 
-See [here][set-dependency-version.md] for more information about these kind of scripts.
+See [here](./set-dependency-version.md "set-dependency-version.md") for more information about these kind of scripts.
 
 ## ShellCheck
 
