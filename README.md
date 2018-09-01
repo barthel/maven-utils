@@ -7,6 +7,8 @@ I'm using these scripts often in my daily work and they does what they have to d
 
 File starting with `_` are primarily to include (source) in other scripts. These files providing global re-usable functions and should not be executed directly.
 
+More and deeper documentation could be found in ['doc/'](./doc/).
+
 ## Install and Usage
 
 Clone this repository and add it to your `PATH` environment variable.
@@ -15,13 +17,13 @@ Most of these scripts has a _help_-option (`-h`, `-?`), a _quiet_-option (`-q`) 
 
 The _usage_ information will be displayed if a script will executed without any arguments or with a help-option (`-h`, `-?`).
 
-## [Bulk change artifact version](./set-dependency-version.md "set-dependency-version.md")
+## [Bulk change artifact version](./doc/set-dependency-version.md "doc/set-dependency-version.md")
 
 The main intention of scripts with the name prefix `set-dependency-version` is to change the artifact version in a bulk.
 
 These scripts are not using Apache Maven¹ itself rather they based on search-and-replace pattern in specific files (`pom.xml`, `MANIFEST.MF` ...).
 
-See [here](./set-dependency-version.md "set-dependency-version.md") for more information about these kind of scripts.
+See [here](./doc/set-dependency-version.md "doc/set-dependency-version.md") for more information about these kind of scripts.
 
 ## ShellCheck
 
