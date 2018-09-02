@@ -21,7 +21,7 @@ The _usage_ information will be displayed if a script will executed without any 
 
 The main intention of scripts with the name prefix `set-dependency-version` is to change the artifact version in a bulk.
 
-These scripts are not using Apache Maven¹ itself rather they based on search-and-replace pattern in specific files (`pom.xml`, `MANIFEST.MF` ...).
+These scripts are not using [Apache Maven][maven]¹, rather they based on search-and-replace pattern in specific files (`pom.xml`, `MANIFEST.MF` ...).
 
 See [here](./doc/set-dependency-version.md "doc/set-dependency-version.md") for more information about these kind of scripts.
 
@@ -32,7 +32,7 @@ See [here](./doc/set-dependency-version.md "doc/set-dependency-version.md") for 
 
 ## License
 
-All these scripts are licensed under the [Apache License, Version 2.0][apl]⁵.
+All these scripts, expect `maven-pr-validator.sh`, are licensed under the [Apache License, Version 2.0][apl]⁵.
 A copy of this license could be also found in the `LICENSE` file.
 
 ```bash
@@ -45,6 +45,7 @@ A copy of this license could be also found in the `LICENSE` file.
 # http://www.apache.org/licenses/LICENSE-2.0
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ```
+The Maven Pull Request Validator script (`maven-pr-validator.sh`) based - with small modification - on a script by [@jvanzyl](https://github.com/jvanzyl) and could be found at https://gist.github.com/jvanzyl/16da25976f8ad27293fa.
 
 ## Links
 
