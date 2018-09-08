@@ -3,11 +3,29 @@
 Helper scripts around [Apache Maven][maven]¹ usage.
 
 All these scripts are *NOT* speed optimized!
-I'm using these scripts often in my daily work and they does what they have to do.
+I'm using these scripts often in my daily work, and they do what they have to do.
 
-A file located in `lib/` and/or the file name starts with a `_` is primarily for use to include (source) into other scripts. These files providing global re-usable functions and should not be executed directly.
+A file located in `lib/` and/or the file name starts with a `_` is primarily for used to include (source) into other scripts. These files providing global re-usable functions and should not be executed directly.
 
-More and deeper documentation could be found in ['doc/'](./doc/).
+More and deeper documentation could be found in [`doc/`](./doc/).
+
+And, YES, I know that manipulating XML files with [GNU core-utils][core-utils]⁵ like `sed` and `awk` is not recommended to use.
+I'll take a deeper look on [`xml-coreutils`][xml-coreutils].
+
+## Requirements
+
+Most of these scripts are requires UNIX/Linux standard tools and commands like:
+
+* [GNU core-utils][core-utils]⁵
+* [GNU bash][bash]⁶
+
+All scripts are daily used with `GNU bash, version 3.2.57(1)-release (x86_64-apple-darwin17)` on macOS High Sierra and also tested with:
+
+* `GNU bash, Version 4.4.12(3)-release (x86_64-unknown-cygwin)` on [_Cygwin_ 2.11.1][cygwin]
+* `GNU bash, version 4.4.19(2)-release (x86_64-pc-msys)` on [_Git for Windows_ 2.18.0][git-bash]
+
+Each script checks the required tools and exits with an error if a required tool is not available.
+Please check the script documentation for additional and/or deviating requirements.
 
 ## Install and Usage
 
@@ -15,24 +33,28 @@ Clone this repository and add it to your `PATH` environment variable.
 
 Most of these scripts has a _help_-option (`-h`, `-?`), a _quiet_-option (`-q`) and a multi-level _verbose_-option (`-vv...`).
 
-The _usage_ information will be displayed if a script will executed without any arguments or with a help-option (`-h`, `-?`).
+The _usage_ information will be displayed if a script will execute without any arguments or with a help-option (`-h`, `-?`).
 
 ## [Bulk change artifact version](./doc/set-dependency-version.md "doc/set-dependency-version.md")
 
 The main intention of scripts with the name prefix `set-dependency-version` is to change the artifact version in a bulk.
 
+The most of these provided scripts are working on [Apache Maven][maven]¹ [POM][maven-pom] files.
+Additionally, for Eclipse RCP development, there are more interesting files which has to manipulate too.
+These files are a bunch of XML and non-XML files which have to manipulate easy.
+
 These scripts are not using [Apache Maven][maven]¹, rather they based on search-and-replace pattern in specific files (`pom.xml`, `MANIFEST.MF` ...).
 
-See [here](./doc/set-dependency-version.md "doc/set-dependency-version.md") for more information about these kind of scripts.
+See [here](./doc/set-dependency-version.md "doc/set-dependency-version.md") for more information about this kind of scripts.
 
 ## ShellCheck
 
-[ShellCheck][shellcheck]³ is a static analysis tool for shell scripts and I'm use it to check my scripts and try to preventing pitfalls.
-[ShellCheck][shellcheck]³ must be configured with the extended option [`-x`][SC1091]⁴ to validate these scripts correctly.
+[ShellCheck][shellcheck]³ is a static analysis tool for shell scripts and I'm use it to check my scripts and try to prevent pitfalls.
+[ShellCheck][shellcheck]³ must be configured with the extended option [`-x`][SC1091] to validate these scripts correctly.
 
 ## License
 
-All these scripts, expect `maven-pr-validator.sh`, are licensed under the [Apache License, Version 2.0][apl]⁵.
+All these scripts, expect `maven-pr-validator.sh`, are licensed under the [Apache License, Version 2.0][apl]⁴.
 A copy of this license could be also found in the `LICENSE` file.
 
 ```bash
@@ -45,17 +67,29 @@ A copy of this license could be also found in the `LICENSE` file.
 # http://www.apache.org/licenses/LICENSE-2.0
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ```
-The Maven Pull Request Validator script (`maven-pr-validator.sh`) based - with small modification - on a script by [@jvanzyl](https://github.com/jvanzyl) and could be found at https://gist.github.com/jvanzyl/16da25976f8ad27293fa.
+
+The Maven Pull Request Validate script ('maven-pr-validator.sh') based — with small modification — on a script by [@jvanzyl][jvanzyl] and the original script could be found at his [*GitHub*Gist][maven-pr-validator].
 
 ## Links
 
+[//]: # "https://unicode-table.com/en/blocks/superscripts-and-subscripts/"
+
 * ¹ [Apache Maven][maven]
 * ³ [ShellCheck][shellcheck]
-* ⁴ [ShellCheck directive SC1091][SC1091]
-* ⁵ [Apache License, Version 2.0][apl]
+* ⁴ [Apache License, Version 2.0][apl]
+* ⁵ [GNU core-utils][core-utils]
+* ⁶ [GNU bash][bash]
 
 [maven]:https://maven.apache.org
+[maven-pom]:https://maven.apache.org/pom.html#What_is_the_POM
 [p2-maven-plugin]:https://github.com/reficio/p2-maven-plugin
 [shellcheck]:https://www.shellcheck.net
 [SC1091]:https://github.com/koalaman/shellcheck/wiki/SC1091
 [apl]:http://www.apache.org/licenses/LICENSE-2.0
+[maven-pr-validator]:https://gist.github.com/jvanzyl/16da25976f8ad27293fa
+[jvanzyl]:https://github.com/jvanzyl
+[core-utils]:https://www.gnu.org/software/coreutils/manual/coreutils.html
+[bash]:https://www.gnu.org/software/bash/bash.html
+[git-bash]:https://git-scm.com/download/win
+[cygwin]:https://cygwin.com/install.html
+[xml-coreutils]:http://xml-coreutils.sourceforge.net/introduction.html

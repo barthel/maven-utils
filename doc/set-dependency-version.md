@@ -1,10 +1,25 @@
 ## Bulk change artifact version
 
-The main intention of scripts with the name prefix `set-dependency-version` is to change [Apache Maven][maven]¹ dependency artifact version in a bulk.
+The main intention of scripts with the name prefix `set-dependency-version` is to change the artifact version in a bulk.
+
+The most of these provided scripts are working on [Apache Maven][maven]¹ [POM][maven-pom] files.
+Additionally, for Eclipse RCP development, there are more interesting files which has to manipulate too.
+These files are a bunch of XML and non-XML files which have to manipulate easy.
 
 These scripts are not using [Apache Maven][maven]¹, rather they based on search-and-replace pattern in specific files (`pom.xml`, `MANIFEST.MF` ...).
 
 [ShellCheck][shellcheck]³ must be configured with the extended option [`-x`][SC1091]⁴ to validate these scripts correctly.
+
+And, YES, I know that manipulating XML files with [GNU core-utils][core-utils]⁵ like `sed` and `awk` is not recommended to use.
+I'll take a deeper look on [`xml-coreutils`][xml-coreutils].
+
+## Requirements
+
+Used command line tools:
+
+* `grep`
+* `xargs`
+* `sed`
 
 ### `set-dependency-version.sh`
 
@@ -308,8 +323,12 @@ In each found POM-file will the `<properties>` chield element, where the element
 * ² [p2-maven-plugin][p2-maven-plugin]
 * ³ [ShellCheck][shellcheck]
 * ⁴ [ShellCheck directive SC1091][SC1091]
+* ⁵ [GNU core-utils][core-utils]
 
 [maven]:https://maven.apache.org
 [p2-maven-plugin]:https://github.com/reficio/p2-maven-plugin
 [shellcheck]:https://www.shellcheck.net
 [SC1091]:https://github.com/koalaman/shellcheck/wiki/SC1091
+[maven-pom]:https://maven.apache.org/pom.html#What_is_the_POM
+[xml-coreutils]:http://xml-coreutils.sourceforge.net/introduction.html
+[core-utils]:https://www.gnu.org/software/coreutils/manual/coreutils.html
