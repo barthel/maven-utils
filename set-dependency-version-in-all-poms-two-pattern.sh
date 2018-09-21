@@ -91,7 +91,7 @@ _build_property_sed_regexp() {
   local _property_sed_artifact_id_filter="${2}"
   local _property_sed_version="${3}"
 
-  echo "s|<\(${_property_sed_artifact_id}\.version\.${_property_sed_artifact_id_filter}\)>\(.*\)<|<\1>${_property_sed_version}<|"
+  echo "s|<\\(${_property_sed_artifact_id}\\.version\\.${_property_sed_artifact_id_filter}\\)>\\(.*\\)<|<\\1>${_property_sed_version}<|"
 }
 
 # 'sed' regexp for version ends with "-SNAPSHOT"

@@ -139,7 +139,7 @@ _build_find_cmd() {
   local _current_dir="${CURRENT_DIR}"
 
   [ ! -z "${2}" ] && _current_dir="${2}"
-  local _find_cmd="find ${_current_dir} -type f \( -name '${_file_name_pattern}' -and -not -ipath '*/.git/*' -and -not -ipath '*/target/*' -and -not -ipath '*/bin/*' \) "
+  local _find_cmd="find ${_current_dir} -type f \\( -name '${_file_name_pattern}' -and -not -ipath '*/.git/*' -and -not -ipath '*/target/*' -and -not -ipath '*/bin/*' \\) "
 
   echo "${_find_cmd}"
 }
