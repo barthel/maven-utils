@@ -10,7 +10,7 @@ A file located in `lib/` and/or the file name starts with a `_` is primarily for
 More and deeper documentation could be found in [`doc/`](./doc/).
 
 And, YES, I know that manipulating XML files with [GNU core-utils][core-utils]⁵ like `sed` and `awk` is not recommended to use.
-I'll take a deeper look on [`xml-coreutils`][xml-coreutils].
+I'll take a deeper look on [`xml-coreutils`][xml-coreutils] or [`XMLStarlet`][xmlstarlet].
 
 ## Requirements
 
@@ -93,3 +93,5 @@ The Maven Pull Request Validate script ('maven-pr-validator.sh') based — with 
 [git-bash]:https://git-scm.com/download/win
 [cygwin]:https://cygwin.com/install.html
 [xml-coreutils]:http://xml-coreutils.sourceforge.net/introduction.html
+[xmlstarlet]:http://xmlstar.sourceforge.net/
+
