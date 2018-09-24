@@ -11,7 +11,7 @@ These scripts are not using [Apache Maven][maven]¹, rather they based on search
 [ShellCheck][shellcheck]³ must be configured with the extended option [`-x`][SC1091]⁴ to validate these scripts correctly.
 
 And, YES, I know that manipulating XML files with [GNU core-utils][core-utils]⁵ like `sed` and `awk` is not recommended to use.
-I'll take a deeper look on [`xml-coreutils`][xml-coreutils].
+I'll take a deeper look on [`xml-coreutils`][xml-coreutils] or [`XMLStarlet`][xmlstarlet].
 
 ## Requirements
 
