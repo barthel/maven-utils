@@ -68,7 +68,7 @@ A copy of this license could be also found in the `LICENSE` file.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ```
 
-The Maven Pull Request Validate script ('maven-pr-validator.sh') based — with small modification — on a script by [@jvanzyl][jvanzyl] and the original script could be found at his [*GitHub*Gist][maven-pr-validator].
+The Maven Pull Request Validate script (`maven-pr-validator.sh`) based — with small modification — on a script by [@jvanzyl][jvanzyl] and the original script could be found at his [*GitHub*Gist][maven-pr-validator].
 
 ## Links
 
