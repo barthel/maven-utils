@@ -24,10 +24,8 @@
 
 # exit codes
 export EXIT_CODE_INVALID_SIZE_ARGUMENTS=20
-export EXIT_CODE_NO_FILENAME_PATTERN_FOR_FIND=30
-export EXIT_CODE_COMMAND_REQUIRED_FOR_EXECUTE=40
-export EXIT_CODE_GREP_PATTERN_REQUIRED=50
-export EXIT_CODE_SED_SCRIPT_REQUIRED=60
+export EXIT_CODE_GREP_PATTERN_REQUIRED=30
+export EXIT_CODE_SED_SCRIPT_REQUIRED=40
 
 # check if 'script_directory' is defined, not empty (${script_directory:?}) and a valid directory (-d)
 [ ! -d "${SCRIPT_DIRECTORY:?}" ] && echo "SCRIPT_DIRECTORY must be a valid directory."
@@ -117,33 +115,6 @@ _generate_next_patch_version() {
   echo "${1%\.*}.${_next_patch_version}"
 }
 
-# Builds the 'find' command including filer based on given file name pattern and directory.
-#
-# Breaks execution with exit code 'EXIT_CODE_NO_FILENAME_PATTERN_FOR_FIND'
-# if required file name pattern was not passed.
-#
-# Usage:
-# ------
-# [...]
-#   _build_find_cmd "\*pom.xml"
-# [...]
-#
-# @param #1: file name pattern for use in find command - required
-# @param #2: path where the 'find' command will start the search or ${CURRENT_DIR} if not passed - optional
-# @returns:  the full assembled 'find' command
-# @exit:     EXIT_CODE_NO_FILENAME_PATTERN_FOR_FIND - if required file name pattern was not passed
-#
-_build_find_cmd() {
-  [ -z "${1}" ] && echo "file name pattern is required for 'find' command" && exit ${EXIT_CODE_NO_FILENAME_PATTERN_FOR_FIND}
-  local _file_name_pattern="${1}"
-  local _current_dir="${CURRENT_DIR}"
-
-  [ ! -z "${2}" ] && _current_dir="${2}"
-  local _find_cmd="find ${_current_dir} -type f \\( -name '${_file_name_pattern}' -and -not -ipath '*/.git/*' -and -not -ipath '*/target/*' -and -not -ipath '*/bin/*' \\) "
-
-  echo "${_find_cmd}"
-}
-
 # Builds the 'grep' command including pattern.
 #
 # Breaks execution with exit code 'EXIT_CODE_GREP_PATTERN_REQUIRED'
@@ -186,35 +157,15 @@ _build_sed_cmd() {
   local _sed_scripts=("${@}")
   [ 0 -eq "${#_sed_scripts[@]}" ] && echo "minimum one sed script is required for 'sed' command" && exit ${EXIT_CODE_SED_SCRIPT_REQUIRED}
 
+  # @see: http://www.alexonlinux.com/sed-the-missing-manual#sed_addresses
   # @see: http://stackoverflow.com/questions/7573368/in-place-edits-with-sed-on-os-x
-  local _sed_cmd="sed -i "
+  local _sed_cmd="sed "
   for _script in "${_sed_scripts[@]}"
     do
       _sed_cmd+="-e \"${_script}\""
   done
 
-  echo "${_sed_cmd}"
-}
-
-# Execute the command ivia 'eval'.
-#
-# Breaks execution with exit code 'EXIT_CODE_COMMAND_REQUIRED_FOR_EXECUTE' if required command was not passed.
-#
-# Usage:
-# ------
-# [...]
-#   _execd_cmd _build_find_cmd
-# [...]
-#
-# @param #1: command as string including all parameters - required
-# @returns:  the output of the executed command
-# @exit:     EXIT_CODE_COMMAND_REQUIRED_FOR_EXECUTE - if required command was not passed
-#
-_exec_cmd() {
-  [ -z "${1}" ] && echo "command is required" && exit ${EXIT_CODE_COMMAND_REQUIRED_FOR_EXECUTE}
-
-  # @see: https://stackoverflow.com/questions/11065077/eval-command-in-bash-and-its-typical-uses
-  eval "${1}"
+  echo "${_sed_cmd} -i'${SED_BACKUP_FILE_SUFFIX}' "
 }
 
 ### CMD ARGS

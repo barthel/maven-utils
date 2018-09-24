@@ -41,3 +41,7 @@ for _script_file in "${SCRIPT_DIRECTORY}"/set-dependency-version-in*.sh; do
   # execute the script and check the return value
   if ! ${_script_cmd}; then echo "${_script_cmd} failed with $?"; exit $?; fi
 done
+
+# clean up temp. work file if verbose level is lower than '2'
+# @see: http://www.linuxjournal.com/content/use-bash-trap-statement-cleanup-temporary-files
+[[ ${VERBOSE} -lt 2 ]] && trap "$(_exec_cmd _build_delete_sed_backup_files)" EXIT

@@ -115,3 +115,7 @@ _cmd+=" bash -c 'ARG=\"{}\"; $(_build_sed_cmd "\${ARG##*:} ${_sed_filter}") \${A
 [ 0 -lt "${VERBOSE}" ] && echo "Execute: ${_cmd}"
 # 4. '_exec_cmd ...'       - execute the assembled command line
 _exec_cmd "${_cmd}"
+
+# clean up temp. work file if verbose level is lower than '2'
+# @see: http://www.linuxjournal.com/content/use-bash-trap-statement-cleanup-temporary-files
+[[ ${VERBOSE} -lt 2 ]] && trap "$(_exec_cmd _build_delete_sed_backup_files)" EXIT

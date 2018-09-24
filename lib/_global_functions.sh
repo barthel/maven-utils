@@ -34,8 +34,12 @@ set -m
 set -e
 # set -x
 
+export SED_BACKUP_FILE_SUFFIX=".sed-backup"
+
 # exit codes
 export EXIT_CODE_EXECUTABLE_NOT_FOUND=2
+export EXIT_CODE_NO_FILENAME_PATTERN_FOR_FIND=3
+export EXIT_CODE_COMMAND_REQUIRED_FOR_EXECUTE=4
 
 # Checks the required tools and commands.
 #
@@ -59,7 +63,7 @@ _check_required_helper() {
      # @see: http://stackoverflow.com/questions/592620/how-to-check-if-a-program-exists-from-a-bash-script
      if [ "" != "$(command -v "${executable}")" ]
      then
-       [ 0 -lt "${VERBOSE}" ] && echo "found required executable: ${executable}"
+       [ 2 -lt "${VERBOSE}" ] && echo "found required executable: ${executable}"
      else
        echo "the executable: ${executable} is required!"
        exit ${EXIT_CODE_EXECUTABLE_NOT_FOUND}
@@ -110,6 +114,58 @@ _append_verbose_parameter() {
     _argument+=" "
     echo "${_argument}"
   fi
+}
+
+# Builds the 'find' command including filer based on given file name pattern and directory.
+#
+# Breaks execution with exit code 'EXIT_CODE_NO_FILENAME_PATTERN_FOR_FIND'
+# if required file name pattern was not passed.
+#
+# Usage:
+# ------
+# [...]
+#   _build_find_cmd "\*pom.xml"
+# [...]
+#
+# @param #1: file name pattern for use in find command - required
+# @param #2: path where the 'find' command will start the search or ${CURRENT_DIR} if not passed - optional
+# @returns:  the full assembled 'find' command
+# @exit:     EXIT_CODE_NO_FILENAME_PATTERN_FOR_FIND - if required file name pattern was not passed
+#
+_build_find_cmd() {
+  [ -z "${1}" ] && echo "file name pattern is required for 'find' command" && exit ${EXIT_CODE_NO_FILENAME_PATTERN_FOR_FIND}
+  local _file_name_pattern="${1}"
+  local _current_dir="${CURRENT_DIR}"
+
+  [ ! -z "${2}" ] && _current_dir="${2}"
+  local _find_cmd="find ${_current_dir} -type f \\( -name '${_file_name_pattern}' -and -not -ipath '*/.git/*' -and -not -ipath '*/target/*' -and -not -ipath '*/bin/*' \\) "
+
+  echo "${_find_cmd}"
+}
+
+_build_delete_sed_backup_files() {
+   echo "$(_build_find_cmd "*${SED_BACKUP_FILE_SUFFIX}") -exec rm -f {} \\;"
+}
+
+# Execute the command ivia 'eval'.
+#
+# Breaks execution with exit code 'EXIT_CODE_COMMAND_REQUIRED_FOR_EXECUTE' if required command was not passed.
+#
+# Usage:
+# ------
+# [...]
+#   _execd_cmd _build_find_cmd
+# [...]
+#
+# @param #1: command as string including all parameters - required
+# @returns:  the output of the executed command
+# @exit:     EXIT_CODE_COMMAND_REQUIRED_FOR_EXECUTE - if required command was not passed
+#
+_exec_cmd() {
+  [ -z "${1}" ] && echo "command is required" && exit ${EXIT_CODE_COMMAND_REQUIRED_FOR_EXECUTE}
+
+  # @see: https://stackoverflow.com/questions/11065077/eval-command-in-bash-and-its-typical-uses
+  eval "${1}"
 }
 
 [ -z "${VERBOSE}" ] && export VERBOSE=0
