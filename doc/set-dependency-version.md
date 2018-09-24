@@ -1,6 +1,6 @@
-## Bulk change artifact version
+# Bulk change of dependency artifact version
 
-The main intention of scripts with the name prefix `set-dependency-version` is to change the artifact version in a bulk.
+The main intention of scripts with the name prefix `set-dependency-version` is to change the version of a dependency artifact in a bulk.
 
 The most of these provided scripts are working on [Apache Maven][maven]¹ [POM][maven-pom] files.
 Additionally, for Eclipse RCP development, there are more interesting files which has to manipulate too.
@@ -20,6 +20,7 @@ Used command line tools:
 * `grep`
 * `xargs`
 * `sed`
+* `awk`
 
 ### `set-dependency-version.sh`
 
@@ -33,6 +34,80 @@ This script executes all scripts with the file name pattern:
 `set-dependency-version.sh "my.artifactId" "47.11.0"`
 
 `set-dependency-version.sh "my.artifactId" "0.8.15-SNAPSHOT"`
+
+### `set-dependency-version-in-all-feature.sh`
+
+Replaces the version in Eclipse RCP `feature.xml` file where the entries following the pattern:
+
+```xml
+    <plugin
+          id="my.artifactId"
+          download-size="0"
+          install-size="0"
+          version="1.0.0-SNAPSHOT"
+          unpack="false"/>
+```
+
+Locates transitively all feature.xml files in the current directory.
+In each found feature.xml file will the entry,  matches the pattern:
+
+```xml
+    <plugin
+          id="[artifactId]"
+          download-size="0"
+          install-size="0"
+          version="[old_version]"
+          unpack="false"/>
+```
+
+, modify to replace the `[old_version]` with the given new version argument.
+
+#### `feature.xml` file example
+
+1. `feature.xml` file before modification:
+
+```ini
+    [...]
+    <plugin
+          id="my.artifactId"
+          download-size="0"
+          install-size="0"
+          version="1.0.0-SNAPSHOT"
+          unpack="false"/>
+    [...]
+```
+
+2a. `feature.xml` file after executing this script with parameter "my.artifactId" "47.11.0-SNAPSHOT"
+
+```ini
+    [...]
+    <plugin
+          id="my.artifactId"
+          download-size="0"
+          install-size="0"
+          version="47.11.0.qualifier"
+          unpack="false"/>
+    [...]
+```
+
+2b. `feature.xml` file after executing this script with parameter "my.artifactId" "47.11.0"
+
+```ini
+    [...]
+    <plugin
+          id="my.artifactId"
+          download-size="0"
+          install-size="0"
+          version="47.11.0"
+          unpack="false"/>
+    [...]
+```
+
+#### Usage
+
+`set-dependency-version-in-all-feature.sh "my.artifactId" "47.11.0"`
+
+`set-dependency-version-in-all-feature.sh "my.artifactId" "0.8.15-SNAPSHOT"`
 
 ### `set-dependency-version-in-all-manifests.sh`
 
