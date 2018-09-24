@@ -407,3 +407,4 @@ In each found POM-file will the `<properties>` chield element, where the element
 [maven-pom]:https://maven.apache.org/pom.html#What_is_the_POM
 [xml-coreutils]:http://xml-coreutils.sourceforge.net/introduction.html
 [core-utils]:https://www.gnu.org/software/coreutils/manual/coreutils.html
+[xmlstarlet]:http://xmlstar.sourceforge.net/
