@@ -35,7 +35,7 @@ Most of these scripts has a _help_-option (`-h`, `-?`), a _quiet_-option (`-q`) 
 
 The _usage_ information will be displayed if a script will execute without any arguments or with a help-option (`-h`, `-?`).
 
-## [Bulk change artifact version](./doc/set-dependency-version.md "doc/set-dependency-version.md")
+## [Bulk change of dependency artifact version](./doc/set-dependency-version.md "doc/set-dependency-version.md")
 
 The main intention of scripts with the name prefix `set-dependency-version` is to change the artifact version in a bulk.
 
@@ -46,6 +46,12 @@ These files are a bunch of XML and non-XML files which have to manipulate easy.
 These scripts are not using [Apache Maven][maven]¹, rather they based on search-and-replace pattern in specific files (`pom.xml`, `MANIFEST.MF` ...).
 
 See [here](./doc/set-dependency-version.md "doc/set-dependency-version.md") for more information about this kind of scripts.
+
+## [Bulk change of the parent artifact version](./doc/set-parent-version.md "doc/set-parent-version.md")
+
+The main intention of this script is to change the version of the parent artifact in a bulk of [Apache Maven][maven]¹ [POM][maven-pom] files.
+
+See [here](./doc/set-parent-version.md "doc/set-parent-version.md") for more information about this script.
 
 ## ShellCheck
 
