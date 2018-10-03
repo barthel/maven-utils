@@ -12,7 +12,7 @@ More and deeper documentation could be found in [`doc/`](./doc/).
 And, YES, I know that manipulating XML files with [GNU core-utils][core-utils]⁵ like `sed` and `awk` is not recommended to use.
 I'll take a deeper look on [`xml-coreutils`][xml-coreutils] or [`XMLStarlet`][xmlstarlet].
 
-## Requirements
+## 1. Requirements
 
 Most of these scripts are requires UNIX/Linux standard tools and commands like:
 
@@ -27,7 +27,7 @@ All scripts are daily used with `GNU bash, version 3.2.57(1)-release (x86_64-app
 Each script checks the required tools and exits with an error if a required tool is not available.
 Please check the script documentation for additional and/or deviating requirements.
 
-## Install and Usage
+## 2. Install and Usage
 
 Clone this repository and add it to your `PATH` environment variable.
 
@@ -35,7 +35,7 @@ Most of these scripts has a _help_-option (`-h`, `-?`), a _quiet_-option (`-q`) 
 
 The _usage_ information will be displayed if a script will execute without any arguments or with a help-option (`-h`, `-?`).
 
-## [Bulk change of dependency artifact version](./doc/set-dependency-version.md "doc/set-dependency-version.md")
+## 3. [Bulk change of dependency artifact version](./doc/set-dependency-version.md "doc/set-dependency-version.md")
 
 The main intention of scripts with the name prefix `set-dependency-version` is to change the artifact version in a bulk.
 
@@ -47,24 +47,24 @@ These scripts are not using [Apache Maven][maven]¹, rather they based on search
 
 See [here](./doc/set-dependency-version.md "doc/set-dependency-version.md") for more information about this kind of scripts.
 
-## [Bulk change of the parent artifact version](./doc/set-parent-version.md "doc/set-parent-version.md")
+## 4. [Bulk change of the parent artifact version](./doc/set-parent-version.md "doc/set-parent-version.md")
 
 The main intention of this script is to change the version of the parent artifact in a bulk of [Apache Maven][maven]¹ [POM][maven-pom] files.
 
 See [here](./doc/set-parent-version.md "doc/set-parent-version.md") for more information about this script.
 
-## Maven Pull Request Validator
+## 5. Maven Pull Request Validator
 
 The Maven Pull Request Validate script (`maven-pr-validator.sh`) based — with small modification — on a script by [@jvanzyl][jvanzyl] and the original script could be found at his [*GitHub*Gist][maven-pr-validator].
 
 > This script will checkout Maven, apply a PR, build the Maven distribution and run the Maven integration tests against the just-built distribution. If you successfully get to the end of this script then your PR is ready to be reviewed.
 
-## ShellCheck
+## 6. ShellCheck
 
 [ShellCheck][shellcheck]³ is a static analysis tool for shell scripts and I'm use it to check my scripts and try to prevent pitfalls.
 [ShellCheck][shellcheck]³ must be configured with the extended option [`-x`][SC1091] to validate these scripts correctly.
 
-## License
+## 7. License
 
 All these scripts, expect `maven-pr-validator.sh`, are licensed under the [Apache License, Version 2.0][apl]⁴.
 A copy of this license could be also found in the `LICENSE` file.
@@ -82,7 +82,11 @@ A copy of this license could be also found in the `LICENSE` file.
 
 The Maven Pull Request Validate script (`maven-pr-validator.sh`) based — with small modification — on a script by [@jvanzyl][jvanzyl] and the original script could be found at his [*GitHub*Gist][maven-pr-validator].
 
-## Links
+## 8. Attic
+
+The directory `_attic` is the place where the old and not supported scripts will be moved into it. These scripts are not maintained anymore.
+
+## 9. Links
 
 [//]: # "https://unicode-table.com/en/blocks/superscripts-and-subscripts/"
 
