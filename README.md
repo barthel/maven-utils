@@ -53,6 +53,12 @@ The main intention of this script is to change the version of the parent artifac
 
 See [here](./doc/set-parent-version.md "doc/set-parent-version.md") for more information about this script.
 
+## Maven Pull Request Validator
+
+The Maven Pull Request Validate script (`maven-pr-validator.sh`) based — with small modification — on a script by [@jvanzyl][jvanzyl] and the original script could be found at his [*GitHub*Gist][maven-pr-validator].
+
+> This script will checkout Maven, apply a PR, build the Maven distribution and run the Maven integration tests against the just-built distribution. If you successfully get to the end of this script then your PR is ready to be reviewed.
+
 ## ShellCheck
 
 [ShellCheck][shellcheck]³ is a static analysis tool for shell scripts and I'm use it to check my scripts and try to prevent pitfalls.
@@ -100,4 +106,3 @@ The Maven Pull Request Validate script (`maven-pr-validator.sh`) based — with 
 [cygwin]:https://cygwin.com/install.html
 [xml-coreutils]:http://xml-coreutils.sourceforge.net/introduction.html
 [xmlstarlet]:http://xmlstar.sourceforge.net/
-
