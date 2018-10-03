@@ -83,9 +83,13 @@ In each found [POM][maven-pom]-file will the entry,  matches the pattern:
 
 #### Usage
 
-`set-parent-version-in-all-poms.sh "my.artifactId" "47.11.0"`
+```bash
+set-parent-version-in-all-poms.sh "my.artifactId" "47.11.0"
+```
 
-`set-parent-version-in-all-poms.sh "my.artifactId" "0.8.15-SNAPSHOT"`
+```bash
+set-parent-version-in-all-poms.sh "my.artifactId" "0.8.15-SNAPSHOT"
+```
 
 ## ShellCheck
 

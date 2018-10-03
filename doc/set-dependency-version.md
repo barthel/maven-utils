@@ -31,9 +31,13 @@ This script executes all scripts with the file name pattern:
 
 #### Usage
 
-`set-dependency-version.sh "my.artifactId" "47.11.0"`
+```bash
+set-dependency-version.sh "my.artifactId" "47.11.0"
+```
 
-`set-dependency-version.sh "my.artifactId" "0.8.15-SNAPSHOT"`
+```bash
+set-dependency-version.sh "my.artifactId" "0.8.15-SNAPSHOT"
+```
 
 ### `set-dependency-version-in-all-feature.sh`
 
@@ -66,7 +70,7 @@ In each found feature.xml file will the entry,  matches the pattern:
 
 1. `feature.xml` file before modification:
 
-```ini
+```xml
     [...]
     <plugin
           id="my.artifactId"
@@ -79,7 +83,7 @@ In each found feature.xml file will the entry,  matches the pattern:
 
 2a. `feature.xml` file after executing this script with parameter "my.artifactId" "47.11.0-SNAPSHOT"
 
-```ini
+```xml
     [...]
     <plugin
           id="my.artifactId"
@@ -92,7 +96,7 @@ In each found feature.xml file will the entry,  matches the pattern:
 
 2b. `feature.xml` file after executing this script with parameter "my.artifactId" "47.11.0"
 
-```ini
+```xml
     [...]
     <plugin
           id="my.artifactId"
@@ -105,9 +109,13 @@ In each found feature.xml file will the entry,  matches the pattern:
 
 #### Usage
 
-`set-dependency-version-in-all-feature.sh "my.artifactId" "47.11.0"`
+```bash
+set-dependency-version-in-all-feature.sh "my.artifactId" "47.11.0"
+```
 
-`set-dependency-version-in-all-feature.sh "my.artifactId" "0.8.15-SNAPSHOT"`
+```bash
+set-dependency-version-in-all-feature.sh "my.artifactId" "0.8.15-SNAPSHOT"
+```
 
 ### `set-dependency-version-in-all-manifests.sh`
 
@@ -150,9 +158,13 @@ Require-Bundle: org.eclipse.osgi;bundle-version="3.10.102",
 
 #### Usage
 
-`set-dependency-version-in-all-manifests.sh "my.artifactId" "47.11.0"`
+```bash
+set-dependency-version-in-all-manifests.sh "my.artifactId" "47.11.0"
+```
 
-`set-dependency-version-in-all-manifests.sh "my.artifactId" "0.8.15-SNAPSHOT"`
+```bash
+set-dependency-version-in-all-manifests.sh "my.artifactId" "0.8.15-SNAPSHOT"
+```
 
 ### `set-dependencies-in-all-p2-maven-plugin-poms.sh`
 
@@ -272,11 +284,17 @@ Only the SNAPSHOT version will be replaced.
 
 #### Usage
 
-`set-dependencies-in-all-p2-maven-plugin-poms.sh "artifactId" "47.11.0-SNAPSHOT"`
+```bash
+set-dependencies-in-all-p2-maven-plugin-poms.sh "artifactId" "47.11.0-SNAPSHOT"
+```
 
-`set-dependencies-in-all-p2-maven-plugin-poms.sh "artifactId" "47.11.0"`
+```bash
+set-dependencies-in-all-p2-maven-plugin-poms.sh "artifactId" "47.11.0"
+```
 
-`set-dependencies-in-all-p2-maven-plugin-poms.sh "artifactId" "47.11.0" "48.0.0-SNAPSHOT"`
+```bash
+set-dependencies-in-all-p2-maven-plugin-poms.sh "artifactId" "47.11.0" "48.0.0-SNAPSHOT"
+```
 
 ### `set-dependencies-in-all-poms-one-pattern.sh`
 
@@ -322,9 +340,13 @@ Replaces version in Maven POM-file property entries following the only one patte
 
 #### Usage
 
-`set-dependencies-in-all-poms-one-pattern.sh "my.artifactId" "47.11.0-SNAPSHOT"`
+```bash
+set-dependencies-in-all-poms-one-pattern.sh "my.artifactId" "47.11.0-SNAPSHOT"
+```
 
-`set-dependencies-in-all-poms-one-pattern.sh "my.artifactId" "47.11.0"`
+```bash
+set-dependencies-in-all-poms-one-pattern.sh "my.artifactId" "47.11.0"
+```
 
 ### `set-dependencies-in-all-poms-two-pattern.sh`
 
@@ -384,11 +406,17 @@ In each found POM-file will the `<properties>` chield element, where the element
 
 #### Usage
 
-`set-dependencies-in-all-p2-maven-plugin-poms.sh "artifactId" "47.11.0-SNAPSHOT"`
+```bash
+set-dependencies-in-all-p2-maven-plugin-poms.sh "artifactId" "47.11.0-SNAPSHOT"
+```
 
-`set-dependencies-in-all-p2-maven-plugin-poms.sh "artifactId" "47.11.0"`
+```bash
+set-dependencies-in-all-p2-maven-plugin-poms.sh "artifactId" "47.11.0"
+```
 
-`set-dependencies-in-all-p2-maven-plugin-poms.sh "artifactId" "47.11.0" "48.0.0-SNAPSHOT"`
+```bash
+set-dependencies-in-all-p2-maven-plugin-poms.sh "artifactId" "47.11.0" "48.0.0-SNAPSHOT"
+```
 
 ## ShellCheck
 
