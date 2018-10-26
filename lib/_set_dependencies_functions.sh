@@ -95,7 +95,7 @@ _check_arguments() {
 #
 # Example:
 # --------
-# "47.11.0" -> "47.11.1", "0.8.15" -> "8.8.16"
+# "47.11.0" -> "47.11.1", "0.8.15" -> "0.8.16"
 #
 # Usage:
 # ------
@@ -103,18 +103,48 @@ _check_arguments() {
 #   _generate_next_patch_version ${version}
 # [...]
 #
-# @param #1: stripped (without '-SNAPSHOT') version
+# @param #1: stripped (without '-SNAPSHOT') original version
 # @returns: the next patch incremented version
 #
 _generate_next_patch_version() {
   # extract the string after the last dot
-  local _next_patch_version=${1##*\.}
+  local _next_patch_version=${1##*'.'}
   # increment the extracted part
   ((_next_patch_version++))
   # replace the extracted part with the increment one
-  echo "${1%\.*}.${_next_patch_version}"
+  echo "${1%'.'*}.${_next_patch_version}"
 }
 
+# Generates the next minor version
+# (increments the digest after the first dot and replaces the last digest with '0')
+# in the given stripped (without '-SNAPSHOT') version.
+#
+# Example:
+# --------
+# "47.11.0" -> "47.12.0", "0.8.15" -> "0.9.0"
+#
+# Usage:
+# ------
+# [...]
+#   _generate_next_patch_version ${version}
+# [...]
+#
+# @param #1: stripped (without '-SNAPSHOT') original version
+# @returns: the next minor incremented version
+#
+_generate_next_minor_version() {
+  # get the major - 47.11.9 -> 47
+  local _current_major="${1%%'.'*}"
+  # get the major-minor - 47.11.9 -> 47.11
+  local _current_major_minor="${1#*'.'}"
+  # extract the string after the last dot - 47.11 -> 11
+  local _next_minor_version=${_current_major_minor%'.'*}
+  # increment the extracted part
+  ((_next_minor_version++))
+  # replace the extracted part with the increment one
+  # 47.12.0
+  echo "${_current_major}.${_next_minor_version}.0"
+}
 # Builds the 'grep' command including pattern.
 #
 # Breaks execution with exit code 'EXIT_CODE_GREP_PATTERN_REQUIRED'
@@ -192,13 +222,17 @@ _check_arguments "${@}"
 
 export ORIGINAL_ARTIFACT_ID="${1}"
 export ORIGINAL_VERSION="${2}"
+export ORIGINAL_STRIPPED_VERSION="${2%%\-*}"
 export ORIGINAL_NEXT_VERSION="${3}"
+export ORIGINAL_STRIPPED_NEXT_VERSION="${3%%\-*}"
 # escape dot for use in rexexp pattern
 export VERSION="${ORIGINAL_VERSION//\./\\.}"
 export STRIPPED_VERSION="${VERSION}"
+export NEXT_VERSION="${ORIGINAL_NEXT_VERSION//\./\\.}"
+export STRIPPED_NEXT_VERSION="${NEXT_VERSION%%\-*}"
 
 # check and strip -SNAPSHOT from version
-if [[ "${VERSION}" == *-SNAPSHOT ]] 
+if [[ "${ORIGINAL_VERSION}" == *-SNAPSHOT ]] 
   then
     IS_SNAPSHOT_VERSION=true
     # extract string before '-'

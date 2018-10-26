@@ -28,7 +28,7 @@
 #  2a. MANIFEST-file after executing this script with parameter "my.artifactId" "47.11.0-SNAPSHOT"
 #    [...]
 #    Require-Bundle: org.eclipse.osgi;bundle-version="3.10.102",
-#     my.artifactId;bundle-version="47.11.0",
+#     my.artifactId;bundle-version="[47.11.0,47.12.0)",
 #    [...]
 #
 #  2b. MANIFEST-file after executing this script with parameter "my.artifactId" "47.11.0"
@@ -61,9 +61,18 @@ _bundle_version="${ORIGINAL_ARTIFACT_ID};bundle-version="
 # is SNAPSHOT - use stripped version
 _version="${STRIPPED_VERSION}"
 # is NOT SNAPSHOT - use version range "[stripped_version,stripped_version]"
+#    otherwise    - use version range "[stripped_version,next minor stripped_version)" <- check the different braces!
 if ! ${IS_SNAPSHOT_VERSION}
   then
     _version="\\\\[${_version},${_version}\\\\]"
+  else
+    if [ ! -z "${ORIGINAL_NEXT_VERSION}" ]
+      then
+        _version="\\\\[${_version},${STRIPPED_NEXT_VERSION}\\\\)"
+    else
+      _next_minor_version="$(_generate_next_minor_version "${ORIGINAL_STRIPPED_VERSION}")"
+      _version="\\\\[${_version},${_next_minor_version//\./\\.}\\\\)"
+    fi
 fi
 
 _find_filter="MANIFEST.MF"
