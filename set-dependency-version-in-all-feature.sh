@@ -109,7 +109,7 @@ _cmd+=" awk '/\\<plugin/{s=x; start=NR}{s=s\$0\"\\n\"}/${_awk_filter}/{p=1}/\\/>
 #    bash -c '
 #      ARG="{}"; sed -i -e"${ARG##*:} s|\\(version=\\\"\\).*\\(\\\".*\\)|\\147\.11\.0\\2|g" ${ARG%%:*}
 #    '
-_cmd+=" | xargs -I '{}'"
+_cmd+=" | xargs -r -I '{}'"
 _cmd+=" bash -c 'ARG=\"{}\"; $(_build_sed_cmd "\${ARG##*:} ${_sed_filter}") \${ARG%%:*};'"
 
 [ 0 -lt "${VERBOSE}" ] && echo "Execute: ${_cmd}"

@@ -73,7 +73,7 @@ _sed_filter="s|<version>.*</version>|<version>${VERSION}</version>|g"
 # 1. '_build_find_cmd ...' - build the find command for relative path only of files
 #                            with name pattern
 _cmd="$(_build_find_cmd "${_find_filter}") "
-_cmd+=" | xargs "
+_cmd+=" | xargs -r "
 # 2. '_build_grep_cmd ...' - select file names containing the bundle version string
 _cmd+="$(_build_grep_cmd "${_grep_filter}") "
 
@@ -86,7 +86,7 @@ _cmd+=" awk '/<parent>/{s=x; start=NR}{s=s\$0\"\\n\"}/${_awk_filter}/{p=1}/<\\/p
 #    bash -c '
 #      ARG="{}"; sed -i -e"${ARG##*:} s|\\(version=\\\"\\).*\\(\\\".*\\)|\\147\.11\.0\\2|g" ${ARG%%:*}
 #    '
-_cmd+=" | xargs -I '{}'"
+_cmd+=" | xargs -r -I '{}'"
 _cmd+=" bash -c 'ARG=\"{}\"; $(_build_sed_cmd "\${ARG##*:} ${_sed_filter}") \${ARG%%:*};'"
 
 [ 0 -lt "${VERBOSE}" ] && echo "Execute: ${_cmd}"
