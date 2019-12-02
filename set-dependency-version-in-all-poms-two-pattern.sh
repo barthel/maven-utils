@@ -110,10 +110,10 @@ _grep_filter="<${property_name}[${sed_snapshot_id_filter}\\|${sed_not_snapshot_i
 # 1. '_build_find_cmd ...' - build the find command for relative path only of files
 #                            with name pattern
 _cmd="$(_build_find_cmd "${_find_filter}") "
-_cmd+=" | xargs "
+_cmd+=" | $(_build_xargs_cmd) "
 # 2. '_build_grep_cmd ...' - select file names containing the version string
 _cmd+="$(_build_grep_cmd "${_grep_filter}") "
-_cmd+=" | xargs "
+_cmd+=" | $(_build_xargs_cmd) "
 
 # is NOT SNAPSHOT - change the released version, increment the patch number and change the SNAPSHOT version
 if ! ${IS_SNAPSHOT_VERSION}

@@ -73,20 +73,20 @@ _sed_filter="s|<version>.*</version>|<version>${VERSION}</version>|g"
 # 1. '_build_find_cmd ...' - build the find command for relative path only of files
 #                            with name pattern
 _cmd="$(_build_find_cmd "${_find_filter}") "
-_cmd+=" | xargs "
+_cmd+=" | $(_build_xargs_cmd) "
 # 2. '_build_grep_cmd ...' - select file names containing the bundle version string
 _cmd+="$(_build_grep_cmd "${_grep_filter}") "
 
 # 3. 'awk ...' - identify range and returns '[FILENAME]:[START],[END]'
 # awk '/<parent>/{s=x; start=NR}{s=s$0"\n"}/<artifactId>my.artifactId<\/artifactId>/{p=1}/<\/parent>/ && p{printf "%s:%d,%d\n",FILENAME,start,NR; p=0}' {}
-_cmd+=" | xargs -I '{}'"
+_cmd+=" | $(_build_xargs_cmd -I '{}') "
 _cmd+=" awk '/<parent>/{s=x; start=NR}{s=s\$0\"\\n\"}/${_awk_filter}/{p=1}/<\\/parent>/ && p{printf \"%s:%d,%d\\n\",FILENAME,start,NR; p=0}' {}"
 
 # 4.  - FILENAME="${ARG%%:*}"; RANGE="${ARG##*:}";
 #    bash -c '
 #      ARG="{}"; sed -i -e"${ARG##*:} s|\\(version=\\\"\\).*\\(\\\".*\\)|\\147\.11\.0\\2|g" ${ARG%%:*}
 #    '
-_cmd+=" | xargs -I '{}'"
+_cmd+=" | $(_build_xargs_cmd -I '{}') "
 _cmd+=" bash -c 'ARG=\"{}\"; $(_build_sed_cmd "\${ARG##*:} ${_sed_filter}") \${ARG%%:*};'"
 
 [ 0 -lt "${VERBOSE}" ] && echo "Execute: ${_cmd}"

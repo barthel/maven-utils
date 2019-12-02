@@ -145,6 +145,7 @@ _generate_next_minor_version() {
   # 47.12.0
   echo "${_current_major}.${_next_minor_version}.0"
 }
+
 # Builds the 'grep' command including pattern.
 #
 # Breaks execution with exit code 'EXIT_CODE_GREP_PATTERN_REQUIRED'

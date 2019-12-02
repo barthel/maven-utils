@@ -147,6 +147,29 @@ _build_delete_sed_backup_files() {
    echo "$(_build_find_cmd "*${SED_BACKUP_FILE_SUFFIX}") -exec rm -f {} \\;"
 }
 
+# Builds the 'xargs' command w/o GNU extension '-r'.
+#
+# Try to identify the command 'xargs' whether it is the BSD or the GNU variant.
+#
+# The GNU variant requires the '-r' option to ignore empty input.
+# @see: http://man7.org/linux/man-pages/man1/xargs.1.html
+#
+# The BSD variant provided with macOS 10 ignores the empty input without any extra argument.
+#
+# Usage:
+# ------
+# [...]
+#   _build_xargs_cmd "<additional arguments"
+# [...]
+#
+# @param #1: additional arguments - optional
+# @returns:  the full assembled 'xargs' command
+#
+_build_xargs_cmd() {
+  # Uses '--version' to terminate the execution, but could be wrong if xargs understands '-r' but not '--version'.
+  [[ $(xargs -r --version 2>&1 > /dev/null) ]] && echo "xargs $@ " || echo "xargs -r $@ "
+}
+
 # Execute the command ivia 'eval'.
 #
 # Breaks execution with exit code 'EXIT_CODE_COMMAND_REQUIRED_FOR_EXECUTE' if required command was not passed.
