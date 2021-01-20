@@ -196,7 +196,7 @@ _build_sed_cmd() {
       _sed_cmd+="-e \"${_script}\""
   done
 
-  echo "${_sed_cmd} -i'${SED_BACKUP_FILE_SUFFIX}' "
+  echo "${_sed_cmd} -i${SED_BACKUP_FILE_SUFFIX} "
 }
 
 ### CMD ARGS

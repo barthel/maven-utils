@@ -91,7 +91,10 @@ _grep_filter="id=\\\"${ORIGINAL_ARTIFACT_ID}\\\""
 # id="${ORIGINAL_ARTIFACT_ID}"
 _awk_filter="${_grep_filter}"
 # version="${VERSION}"
-_sed_filter="s|\\(version=\\\"\\).*\\(\\\".*\\)|\\1${_version}\\2|g"
+# @see: https://stackoverflow.com/questions/2854655/command-to-escape-a-string-in-bash
+_local_quoted_version="$( printf "%q" "${_version}")"
+_sed_filter="s|\\\\\\(version=\\\\\\\"\\\\\\).*\\\\\\(\\\\\\\".*\\\\\\)|\\\\1${_local_quoted_version}\\\\2|g"
+_local_quoted_sed_cmd="sed -e\\\"%d,%d ${_sed_filter}\\\" -i.sed-backup  %s"
 
 # 1. '_build_find_cmd ...' - build the find command for relative path only of files
 #                            with name pattern
@@ -100,17 +103,16 @@ _cmd+=" | $(_build_xargs_cmd) "
 # 2. '_build_grep_cmd ...' - select file names containing the bundle version string
 _cmd+="$(_build_grep_cmd "${_grep_filter}") "
 
-# 3. 'awk ...' - identify range and returns '[FILENAME]:[START],[END]'
-# awk '/\<plugin/{s=x; start=NR}{s=s$0"\n"}/id="my.artifactId"/{p=1}/\/>/ && p{printf "%s:%d,%d\n",FILENAME,start,NR; p=0}' {}
+# 3. 'awk ...' - identify file name and range; returns replacement sed script 'sed ... -e"[START],[END] ... [FILENAME]'
+# awk '/\<plugin/{s=x; start=NR}{s=s$0"\n"}/id=\"taco.contentstore.encrypted\"/{p=1}/\/>/ && p{printf "sed -e\"%d,%d s|\\\(version=\\\"\\\).*\\\(\\\".*\\\)|\\10\\\.8\\\.15\\\.qualifier\\2|g\" -i.sed-backup  %s\n",start,NR,FILENAME; p=0}'
 _cmd+=" | $(_build_xargs_cmd -I '{}') "
-_cmd+=" awk '/\\<plugin/{s=x; start=NR}{s=s\$0\"\\n\"}/${_awk_filter}/{p=1}/\\/>/ && p{printf \"%s:%d,%d\\n\",FILENAME,start,NR; p=0}' {}"
+_cmd+=" awk '/\\<plugin/{s=x; start=NR}{s=s\$0\"\\n\"}/${_awk_filter}/{p=1}/\\/>/ && p{printf \"${_local_quoted_sed_cmd}\\n\",start,NR,FILENAME; p=0}' {}"
 
-# 4.  - FILENAME="${ARG%%:*}"; RANGE="${ARG##*:}";
-#    bash -c '
-#      ARG="{}"; sed -i -e"${ARG##*:} s|\\(version=\\\"\\).*\\(\\\".*\\)|\\147\.11\.0\\2|g" ${ARG%%:*}
-#    '
-_cmd+=" | $(_build_xargs_cmd -I '{}') "
-_cmd+=" bash -c 'ARG=\"{}\"; $(_build_sed_cmd "\${ARG##*:} ${_sed_filter}") \${ARG%%:*};'"
+# 4.  - exec command in bash
+#    bash -c '{}'
+# @see: https://www.cloudsavvyit.com/7984/using-xargs-in-combination-with-bash-c-to-create-complex-commands/
+_cmd+=" | $(_build_xargs_cmd -I '{}' -0 ) "
+_cmd+=" bash -c '{}'"
 
 [ 0 -lt "${VERBOSE}" ] && echo "Execute: ${_cmd}"
 # 4. '_exec_cmd ...'       - execute the assembled command line
