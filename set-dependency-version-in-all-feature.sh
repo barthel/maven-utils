@@ -98,10 +98,10 @@ _local_quoted_sed_cmd="sed -e\\\"%d,%d ${_sed_filter}\\\" -i.sed-backup  %s"
 
 # 1. '_build_find_cmd ...' - build the find command for relative path only of files
 #                            with name pattern
-_cmd="$(_build_find_cmd "${_find_filter}") "
+_cmd="( $(_build_find_cmd "${_find_filter}") "
 _cmd+=" | $(_build_xargs_cmd) "
 # 2. '_build_grep_cmd ...' - select file names containing the bundle version string
-_cmd+="$(_build_grep_cmd "${_grep_filter}") "
+_cmd+="$(_build_grep_cmd "${_grep_filter}") || exit 0 ) "
 
 # 3. 'awk ...' - identify file name and range; returns replacement sed script 'sed ... -e"[START],[END] ... [FILENAME]'
 # awk '/\<plugin/{s=x; start=NR}{s=s$0"\n"}/id=\"taco.contentstore.encrypted\"/{p=1}/\/>/ && p{printf "sed -e\"%d,%d s|\\\(version=\\\"\\\).*\\\(\\\".*\\\)|\\10\\\.8\\\.15\\\.qualifier\\2|g\" -i.sed-backup  %s\n",start,NR,FILENAME; p=0}'
@@ -111,11 +111,11 @@ _cmd+=" awk '/\\<plugin/{s=x; start=NR}{s=s\$0\"\\n\"}/${_awk_filter}/{p=1}/\\/>
 # 4.  - exec command in bash
 #    bash -c '{}'
 # @see: https://www.cloudsavvyit.com/7984/using-xargs-in-combination-with-bash-c-to-create-complex-commands/
-_cmd+=" | $(_build_xargs_cmd -I '{}' -0 ) "
-_cmd+=" bash -c '{}'"
+_cmd+=" | $(_build_xargs_cmd -0 ) bash -c "
 
 [ 0 -lt "${VERBOSE}" ] && echo "Execute: ${_cmd}"
 # 4. '_exec_cmd ...'       - execute the assembled command line
+
 _exec_cmd "${_cmd}"
 
 # clean up temp. work file if verbose level is lower than '2'
