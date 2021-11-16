@@ -16,7 +16,7 @@
 #
 # 1) Complete overview
 # Use all XNL files:
-#   dot_service_dependencies.sh `find . -ipath \*/OSGI-INF/\*.xml -exec grep -wl "http://www.osgi.org/xmlns/scr/v1" {} \;`
+#   dot-dependencies-of-all-osgi-services.sh `find . -ipath \*/OSGI-INF/\*.xml -exec grep -wl "http://www.osgi.org/xmlns/scr/v1" {} \;`
 #
 # Use the DOT file like:
 #   xdot --filter=dot $output_file

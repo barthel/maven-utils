@@ -8,7 +8,7 @@
 # http://www.apache.org/licenses/LICENSE-2.0
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# Use the passed list of lokal pom.xml (maven) files and create dependency-tree in dot format.
+# Use the passed list of local pom.xml (Apache Maven) files and create dependency-tree in dot format.
 #
 # The DOT-output will be modified (replace 'digraph' with 'subgraph') and surround by 'digraph G' and formatting information.
 #
@@ -16,7 +16,7 @@
 #
 # 1) Complete overview
 # Use all POM files (but ignore reactor/module POM files) based on directory structure (git repositories):
-#   dot_dependencies.sh -m -a `find . -iname pom.xml -exec grep -H -v "<modules>" {} \; | grep -v target | cut -d':' -f1 | sort | uniq
+#   dot-dependencies-of-all-poms.sh -m -a `find . -iname pom.xml -exec grep -H -v "<modules>" {} \; | grep -v "test\|target\|bin" | cut -d':' -f1 | sort | uniq
 #
 # Use the DOT file like:
 #   xdot --filter=dot $output_file
@@ -85,7 +85,7 @@ exec_sed_duplicate_braces_line="sed -e'\$!N; /^\(.*\)\n\1\$/!P; D'"
 # filter and cut DOT output out of mvn console message
 #exec_grep_filter_console_message='grep -E "^\[INFO\].*[{;}]" | grep -v -E "[\$@]"'
 exec_grep_filter_console_message='grep -E "[{;}]" | grep -v -E "[\$@]" | grep -v "osgi.os"'
-exec_cut_console_message='cut -d"]" -f2 | sed -r "s/(\s*\(.*)$/\" ;/g"'
+exec_cut_console_message='cut -d"]" -f2 | sed -E "s/(\s*\(.*)$/\" ;/g"'
 
 show_help() {
 cat << EOF
@@ -93,10 +93,11 @@ Usage: ${0##*/} [-ah?mqsuv] [-e EXCLUDES] [-i INCLUDES] [-o OUTFILE] [-p PAGE_SI
 
 Create a DOT file based on Maven dependencies (as a 'subgraph') provided by FILE.
 
-With no FILE the default '${input_files}' will be used.
+With no FILE the default '${input_files[0]}' will be used.
 
     -h|-?        display this help and exit.
     -a           only artifactIds without version information.
+    -d           debug mode. Temporarly files doesn't deleted on exit.
     -e EXCLUDES  exclude dependencies mode.
                  A comma-separated list of artifacts to filter from the serialized dependency tree, or null (default) not
                  to filter any artifacts from the dependency tree. An empty pattern segment is treated as an implicit wildcard.
@@ -115,7 +116,7 @@ With no FILE the default '${input_files}' will be used.
                  Forces a check for updated releases and snapshots on remote Maven repositories.
     -v           verbose mode. Can be used multiple times for increased verbosity.
 
-Example: ${0##*/} \`find . -iname pom.xml -exec grep -H -v "<modules>" {} \; | grep -v "target\|bin" | cut -d':' -f1 | sort | uniq\`
+Example: ${0##*/} \`find . -iname pom.xml -exec grep -H -v "<modules>" {} \; | grep -v "test\|target\|bin" | cut -d':' -f1 | sort | uniq\`
 EOF
 }
 
@@ -124,10 +125,12 @@ EOF
 # @see: http://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash#192266
 # @see: http://mywiki.wooledge.org/BashFAQ/035#getopts
 OPTIND=1         # Reset in case getopts has been used previously in the shell.
-while getopts "ah?mqsuve:i:o:p:" opt;
+while getopts "adh?mqsuve:i:o:p:" opt;
 do
     case "$opt" in
     a)  exec_sed_normalize_artifacts=$sed_normalize_artifactId
+        ;;
+    d)  debug=1
         ;;
     e)  exec_mvn="${exec_mvn} -Dexcludes=\"$OPTARG\""
         ;;
@@ -163,9 +166,9 @@ shift $((OPTIND-1))
 
 [[ $use_only_snapshot -gt 0 ]] && includes="$includes*-SNAPSHOT"
 
-[[ ! -z "$includes" ]] && exec_mvn="${exec_mvn} -Dincludes=\"$includes\""
+[[ -n "$includes" ]] && exec_mvn="${exec_mvn} -Dincludes=\"$includes\""
 
-[[ $verbose -gt 0 ]] && echo -e "input_files: $input_files\noutput_file: $output_file\nincludes: $includes\nexcludes: $excludes\nverbose: $verbose\npage_size: $page_size"
+[[ $verbose -gt 0 || $debug -gt 0 ]] && echo -e "input_files: ${input_files[*]}\noutput_file: $output_file\nincludes: $includes\nexcludes: $excludes\nverbose: $verbose\npage_size: $page_size"
 # add Maven verbose option if 'v' command line arg was more than twice
 #[[ $verbose -gt 2 ]] && exec_mvn="${exec_mvn} -X"
 ### CMD ARGS
@@ -236,6 +239,6 @@ fi
 echo -e $dot_file_footer >> $temp_output_file
 prune $temp_output_file > $output_file
 
-# clean up temp. work file if verbose level is lower than '2'
+# clean up temp. work file if debug mode is not enabled
 # @see: http://www.linuxjournal.com/content/use-bash-trap-statement-cleanup-temporary-files
-[[ $verbose -lt 2 ]] && trap "rm -f $temp_dependencies_output_file $temp_output_file" EXIT
+[[ $debug -lt 1 ]] && trap "rm -f $temp_dependencies_output_file $temp_output_file" EXIT || echo -e "temp_dependencies_output_file: $temp_dependencies_output_file\ntemp_output_file: $temp_output_file"

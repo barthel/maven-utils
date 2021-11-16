@@ -53,18 +53,24 @@ The main intention of this script is to change the version of the parent artifac
 
 See [here](./doc/set-parent-version.md "doc/set-parent-version.md") for more information about this script.
 
-## 5. Maven Pull Request Validator
+## 5. [Create Graphviz DOT² (graph description language) file of all dependencies](./doc/dot-dependencies.md "doc/dot-dependencies.md")
+
+This kind of scripts creates a [Graphviz DOT][graphviz-dot]² file with a graph of all dependencies.
+
+See [here](./doc/dot-dependencies.md "doc/dot-dependencies.md") for more information about these scripts.
+
+## 6. Maven Pull Request Validator
 
 The Maven Pull Request Validate script (`maven-pr-validator.sh`) based — with small modification — on a script by [@jvanzyl][jvanzyl] and the original script could be found at his [*GitHub*Gist][maven-pr-validator].
 
 > This script will checkout Maven, apply a PR, build the Maven distribution and run the Maven integration tests against the just-built distribution. If you successfully get to the end of this script then your PR is ready to be reviewed.
 
-## 6. ShellCheck
+## 7. ShellCheck
 
 [ShellCheck][shellcheck]³ is a static analysis tool for shell scripts and I'm use it to check my scripts and try to prevent pitfalls.
 [ShellCheck][shellcheck]³ must be configured with the extended option [`-x`][SC1091] to validate these scripts correctly.
 
-## 7. License
+## 8. License
 
 All these scripts, expect `maven-pr-validator.sh`, are licensed under the [Apache License, Version 2.0][apl]⁴.
 A copy of this license could be also found in the `LICENSE` file.
@@ -82,15 +88,16 @@ A copy of this license could be also found in the `LICENSE` file.
 
 The Maven Pull Request Validate script (`maven-pr-validator.sh`) based — with small modification — on a script by [@jvanzyl][jvanzyl] and the original script could be found at his [*GitHub*Gist][maven-pr-validator].
 
-## 8. Attic
+## 9. Attic
 
 The directory `_attic` is the place where the old and not supported scripts will be moved into it. These scripts are not maintained anymore.
 
-## 9. Links
+## 10. Links
 
 [//]: # "https://unicode-table.com/en/blocks/superscripts-and-subscripts/"
 
 * ¹ [Apache Maven][maven]
+* ² [Graphviz DOT][graphviz-dot]
 * ³ [ShellCheck][shellcheck]
 * ⁴ [Apache License, Version 2.0][apl]
 * ⁵ [GNU core-utils][core-utils]
@@ -110,3 +117,4 @@ The directory `_attic` is the place where the old and not supported scripts will
 [cygwin]:https://cygwin.com/install.html
 [xml-coreutils]:http://xml-coreutils.sourceforge.net/introduction.html
 [xmlstarlet]:http://xmlstar.sourceforge.net/
+[graphviz-dot]:https://graphviz.gitlab.io/_pages/doc/info/lang.html
